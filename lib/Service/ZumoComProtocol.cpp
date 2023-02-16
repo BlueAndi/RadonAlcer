@@ -51,7 +51,7 @@ SOFTWARE.
  * Public Methods
  *****************************************************************************/
 
-Frame::Frame(uint8_t channel) : m_channel(channel), m_dlc(0U), m_data{0U}, m_checksum(0U)
+Frame::Frame(uint8_t channel) : m_channel(channel), m_dlc(0U), m_data{0U}, m_checksum(channel)
 {
 }
 
