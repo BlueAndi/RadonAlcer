@@ -49,7 +49,7 @@ SOFTWARE.
 /**
  *  Protocol for Communication with ZumoComSystem.
  */
-class ZumoComFrame
+class Frame
 {
 public:
     /** Channel Field Length in Bytes */
@@ -80,12 +80,12 @@ public:
     /**
      *  Class Constructor.
      */
-    ZumoComFrame(uint8_t channel);
+    Frame(uint8_t channel);
 
     /**
      *  Default Destructor.
      */
-    ~ZumoComFrame();
+    ~Frame();
 
     /**
      *  Appends a byte to the frame.
@@ -142,7 +142,7 @@ private:
      *  Default Constructor.
      *  Not allowed to be called.
      */
-    ZumoComFrame();
+    Frame();
 };
 
 #endif /* ZUMO_COM_PROTOCOL_H_ */

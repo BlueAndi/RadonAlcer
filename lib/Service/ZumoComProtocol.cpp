@@ -51,21 +51,21 @@ SOFTWARE.
  * Public Methods
  *****************************************************************************/
 
-ZumoComFrame::ZumoComFrame(uint8_t channel) : m_channel(channel), m_dlc(0U), m_data{0U}, m_checksum(0U)
+Frame::Frame(uint8_t channel) : m_channel(channel), m_dlc(0U), m_data{0U}, m_checksum(0U)
 {
 }
 
-ZumoComFrame::~ZumoComFrame()
+Frame::~Frame()
 {
 }
 
-bool ZumoComFrame::appendData(uint8_t data)
+bool Frame::appendData(uint8_t data)
 {
     const uint8_t buf[1] = {data};
     return appendData(buf, 1U);
 }
 
-bool ZumoComFrame::appendData(uint16_t data)
+bool Frame::appendData(uint16_t data)
 {
     uint8_t MSB = ((data & 0xFF00) >> 8U);
     uint8_t LSB = (data & 0x00FF);
@@ -76,7 +76,7 @@ bool ZumoComFrame::appendData(uint16_t data)
     return appendData(buf, 2U);
 }
 
-bool ZumoComFrame::appendData(const uint8_t* data, uint8_t length)
+bool Frame::appendData(const uint8_t* data, uint8_t length)
 {
     bool isOK = true;
 
@@ -91,7 +91,7 @@ bool ZumoComFrame::appendData(const uint8_t* data, uint8_t length)
     return isOK;
 }
 
-uint8_t ZumoComFrame::getFrame(uint8_t* buffer)
+uint8_t Frame::getFrame(uint8_t* buffer)
 {
     uint8_t frameLength = CHANNEL_LEN + DLC_LEN + CHECKSUM_LEN;
 
@@ -103,7 +103,7 @@ uint8_t ZumoComFrame::getFrame(uint8_t* buffer)
     return frameLength;
 }
 
-uint8_t ZumoComFrame::getFrameLength()
+uint8_t Frame::getFrameLength()
 {
     return (CHANNEL_LEN + DLC_LEN + m_dlc + CHECKSUM_LEN);
 }
