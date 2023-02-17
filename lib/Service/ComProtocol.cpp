@@ -33,7 +33,7 @@ SOFTWARE.
 /******************************************************************************
  * Includes
  *****************************************************************************/
-#include "ZumoComProtocol.h"
+#include "ComProtocol.h"
 
 /******************************************************************************
  * Macros
@@ -51,66 +51,85 @@ SOFTWARE.
  * Public Methods
  *****************************************************************************/
 
-Frame::Frame(uint8_t channel) : m_channel(channel), m_dlc(0U), m_data{0U}, m_checksum(channel)
+ComProtocol& ComProtocol::getInstance()
+{
+    static ComProtocol instance; /* idiom */
+
+    return instance;
+}
+
+void ComProtocol::init()
 {
 }
 
-Frame::~Frame()
+bool ComProtocol::appendData(uint8_t data)
 {
+    const uint8_t numberOfBytes      = 1U;
+    const uint8_t buf[numberOfBytes] = {data};
+    return appendData(buf, numberOfBytes);
 }
 
-bool Frame::appendData(uint8_t data)
+bool ComProtocol::appendData(uint16_t data)
 {
-    const uint8_t buf[1] = {data};
-    return appendData(buf, 1U);
-}
+    const uint8_t numberOfBytes = 2U;
 
-bool Frame::appendData(uint16_t data)
-{
     uint8_t MSB = ((data & 0xFF00) >> 8U);
     uint8_t LSB = (data & 0x00FF);
 
     // Big Endian
-    const uint8_t buf[2] = {MSB, LSB};
+    const uint8_t buf[numberOfBytes] = {MSB, LSB};
 
-    return appendData(buf, 2U);
+    return appendData(buf, numberOfBytes);
 }
 
-bool Frame::appendData(const uint8_t* data, uint8_t length)
+bool ComProtocol::appendData(uint32_t data)
 {
-    bool isOK = true;
+    const uint8_t numberOfBytes = 4U;
 
-    // Check if length + dlc smaller is than max data bytes
+    uint16_t hiBytes  = ((data & 0xFFFF0000) >> 16U);
+    uint16_t lowBytes = (data & 0x0000FFFF);
 
-    // For-loop
+    uint8_t hiMSB  = ((hiBytes & 0xFF00) >> 8U);
+    uint8_t hiLSB  = (hiBytes & 0x00FF);
+    uint8_t lowMSB = ((lowBytes & 0xFF00) >> 8U);
+    uint8_t lowLSB = (lowBytes & 0x00FF);
 
-    // // Copy Data Byte to m_data
-    // // Add (data byte + checksum + 1) (+1 because of dlc)
-    // // New checksum = checksum % UINT8_MAX
+    // Big Endian
+    const uint8_t buf[numberOfBytes] = {hiMSB, hiLSB, lowMSB, lowLSB};
 
-    return isOK;
+    return appendData(buf, numberOfBytes);
 }
 
-uint8_t Frame::getFrame(uint8_t* buffer)
+bool ComProtocol::appendData(const uint8_t* data, uint8_t length)
 {
-    uint8_t frameLength = CHANNEL_LEN + DLC_LEN + CHECKSUM_LEN;
+    bool isSuccess = false;
 
-    // Copy channel
-    // Copy dlc
-    // Copy data bytes according to dlc. frameLength++ for each copied byte
-    // Copy checksum
+    // Check for enough space in frame
+    if ((m_frame.fields.m_dlc + length) <= MAX_DATA_LEN)
+    {
+        for (uint8_t i = 0; i < length; i++)
+        {
+            m_frame.fields.m_data[m_frame.fields.m_dlc] = data[i];
+            m_frame.fields.m_dlc++;
+            m_frame.fields.m_checksum = ((m_frame.fields.m_checksum + data[i] + 1) % UINT8_MAX);
+        }
+        isSuccess = true;
+    }
 
-    return frameLength;
-}
-
-uint8_t Frame::getFrameLength()
-{
-    return (CHANNEL_LEN + DLC_LEN + m_dlc + CHECKSUM_LEN);
+    return isSuccess;
 }
 
 /******************************************************************************
  * Private Methods
  *****************************************************************************/
+
+ComProtocol::ComProtocol()
+{
+}
+
+ComProtocol::~ComProtocol()
+{
+}
 
 /******************************************************************************
  * Local Functions

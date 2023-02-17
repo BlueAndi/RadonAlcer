@@ -49,7 +49,7 @@ SOFTWARE.
 /**
  *  Protocol for Communication with ZumoComSystem.
  */
-class Frame
+class ComProtocol
 {
 public:
     /** Channel Field Length in Bytes */
@@ -67,25 +67,42 @@ public:
     /** Total Frame Length in Bytes */
     static const uint8_t MAX_FRAME_LEN = CHANNEL_LEN + DLC_LEN + MAX_DATA_LEN + CHECKSUM_LEN;
 
-    /** Max Number of Channels defined by the header */
-    static const uint8_t MAX_CHANNEL_NUM = CHANNEL_LEN * UINT8_MAX;
+    /** Data container of the Frame Fields */
+    typedef union _Frame
+    {
+        struct _Fields
+        {
+            /** Channel ID */
+            uint8_t m_channel;
 
-    /** Maximum Channel Priority */
-    static const uint8_t MAX_CHANNEL_PRIO = 0U;
+            /** Data Length */
+            uint8_t m_dlc;
 
-    /** Minimum Channel Priority */
-    static const uint8_t MIN_CHANNEL_PRIO = MAX_CHANNEL_NUM;
+            /** Data of the Frame */
+            uint8_t m_data[MAX_DATA_LEN];
+
+            /** Frame Checksum */
+            uint8_t m_checksum;
+        } __attribute__((packed)) fields;
+
+        /** Raw Frame Data */
+        uint8_t raw[MAX_FRAME_LEN];
+
+    } __attribute__((packed)) Frame;
 
 public:
+    
     /**
-     *  Class Constructor.
+     * Get ComProtocol instance.
+     *
+     * @return Board instance
      */
-    Frame(uint8_t channel);
+    static ComProtocol& getInstance();
 
     /**
-     *  Default Destructor.
+     * Initialize the Protocol.
      */
-    ~Frame();
+    void init();
 
     /**
      *  Appends a byte to the frame.
@@ -102,6 +119,13 @@ public:
     bool appendData(uint16_t data);
 
     /**
+     *  Appends a 32-bit number to the frame.
+     *  @param[in] data 32-bit number to be appended.
+     *  @returns true if bytes have been succesfully appended.
+     */
+    bool appendData(uint32_t data);
+
+    /**
      *  Appends a number of bytes to the frame.
      *  @param[in] data Bytes to be appended.
      *  @param[in] length Number of Bytes to append.
@@ -109,40 +133,21 @@ public:
      */
     bool appendData(const uint8_t* data, uint8_t length);
 
-    /**
-     *  Packs and writes the complete frame to a buffer.
-     *  Includes checksum.
-     *  Buffer must be at least MAX_FRAME_LEN bytes long.
-     *  @param[in] buffer Buffer to write bytes to.
-     *  @returns Total length of the frame in bytes.
-     */
-    uint8_t getFrame(uint8_t* buffer);
-
-    /**
-     *  Length of the Frame in Bytes.
-     *  @returns Length of the Frame
-     */
-    uint8_t getFrameLength();
-
 private:
-    /** Channel ID */
-    uint8_t m_channel;
 
-    /** Data Length */
-    uint8_t m_dlc;
-
-    /** Data of the Frame */
-    uint8_t m_data[MAX_DATA_LEN];
-
-    /** Frame Checksum */
-    uint8_t m_checksum;
+    Frame m_frame;
 
 private:
     /**
      *  Default Constructor.
-     *  Not allowed to be called.
      */
-    Frame();
+    ComProtocol();
+
+    /**
+     *  Default Destructor.
+     */
+    ~ComProtocol();
+
 };
 
 #endif /* ZUMO_COM_PROTOCOL_H_ */
