@@ -62,14 +62,14 @@ void ComProtocol::init()
 {
 }
 
-bool ComProtocol::appendData(uint8_t data)
+bool ComProtocol::appendData(Frame &frame, uint8_t data)
 {
     const uint8_t numberOfBytes      = 1U;
     const uint8_t buf[numberOfBytes] = {data};
-    return appendData(buf, numberOfBytes);
+    return appendData(frame, buf, numberOfBytes);
 }
 
-bool ComProtocol::appendData(uint16_t data)
+bool ComProtocol::appendData(Frame &frame, uint16_t data)
 {
     const uint8_t numberOfBytes = 2U;
 
@@ -79,10 +79,10 @@ bool ComProtocol::appendData(uint16_t data)
     // Big Endian
     const uint8_t buf[numberOfBytes] = {MSB, LSB};
 
-    return appendData(buf, numberOfBytes);
+    return appendData(frame, buf, numberOfBytes);
 }
 
-bool ComProtocol::appendData(uint32_t data)
+bool ComProtocol::appendData(Frame &frame, uint32_t data)
 {
     const uint8_t numberOfBytes = 4U;
 
@@ -97,21 +97,21 @@ bool ComProtocol::appendData(uint32_t data)
     // Big Endian
     const uint8_t buf[numberOfBytes] = {hiMSB, hiLSB, lowMSB, lowLSB};
 
-    return appendData(buf, numberOfBytes);
+    return appendData(frame, buf, numberOfBytes);
 }
 
-bool ComProtocol::appendData(const uint8_t* data, uint8_t length)
+bool ComProtocol::appendData(Frame &frame, const uint8_t* data, uint8_t length)
 {
     bool isSuccess = false;
 
     // Check for enough space in frame
-    if ((m_frame.fields.m_dlc + length) <= MAX_DATA_LEN)
+    if ((frame.fields.m_dlc + length) <= MAX_DATA_LEN)
     {
         for (uint8_t i = 0; i < length; i++)
         {
-            m_frame.fields.m_data[m_frame.fields.m_dlc] = data[i];
-            m_frame.fields.m_dlc++;
-            m_frame.fields.m_checksum = ((m_frame.fields.m_checksum + data[i] + 1) % UINT8_MAX);
+            frame.fields.m_data[frame.fields.m_dlc] = data[i];
+            frame.fields.m_dlc++;
+            frame.fields.m_checksum = ((frame.fields.m_checksum + data[i] + 1) % UINT8_MAX);
         }
         isSuccess = true;
     }
@@ -119,17 +119,17 @@ bool ComProtocol::appendData(const uint8_t* data, uint8_t length)
     return isSuccess;
 }
 
-bool ComProtocol::isFrameValid()
+bool ComProtocol::isFrameValid(const Frame &frame)
 {
     uint8_t newChecksum = 0;
 
     for (uint8_t i = 0; i < (MAX_FRAME_LEN - 1); i++)
     {
-        newChecksum += (m_frame.raw[i] % UINT8_MAX);
+        newChecksum += (frame.raw[i] % UINT8_MAX);
     }
 
     // Frame is valid when both checksums are the same.
-    return !(newChecksum - m_frame.fields.m_checksum);
+    return !(newChecksum - frame.fields.m_checksum);
 }
 
 /******************************************************************************

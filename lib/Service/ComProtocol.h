@@ -109,21 +109,21 @@ public:
      *  @param[in] data Byte to be appended.
      *  @returns true if byte has been succesfully appended.
      */
-    bool appendData(uint8_t data);
+    bool appendData(Frame &frame, uint8_t data);
 
     /**
      *  Appends a 16-bit number to the frame.
      *  @param[in] data 16-bit number to be appended.
      *  @returns true if bytes have been succesfully appended.
      */
-    bool appendData(uint16_t data);
+    bool appendData(Frame &frame, uint16_t data);
 
     /**
      *  Appends a 32-bit number to the frame.
      *  @param[in] data 32-bit number to be appended.
      *  @returns true if bytes have been succesfully appended.
      */
-    bool appendData(uint32_t data);
+    bool appendData(Frame &frame, uint32_t data);
 
     /**
      *  Appends a number of bytes to the frame.
@@ -131,17 +131,13 @@ public:
      *  @param[in] length Number of Bytes to append.
      *  @returns true if bytes have been succesfully appended.
      */
-    bool appendData(const uint8_t* data, uint8_t length);
+    bool appendData(Frame &frame, const uint8_t* data, uint8_t length);
 
     /**
      *  Check validity of a frame through its checksum.
      *  @returns true if checksum is valid.
      */
-    bool isFrameValid();
-
-private:
-
-    Frame m_frame;
+    bool isFrameValid(const Frame &frame);
 
 private:
     /**
