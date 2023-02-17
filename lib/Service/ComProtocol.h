@@ -133,6 +133,12 @@ public:
      */
     bool appendData(const uint8_t* data, uint8_t length);
 
+    /**
+     *  Check validity of a frame through its checksum.
+     *  @returns true if checksum is valid.
+     */
+    bool isFrameValid();
+
 private:
 
     Frame m_frame;

@@ -119,6 +119,19 @@ bool ComProtocol::appendData(const uint8_t* data, uint8_t length)
     return isSuccess;
 }
 
+bool ComProtocol::isFrameValid()
+{
+    uint8_t newChecksum = 0;
+
+    for (uint8_t i = 0; i < (MAX_FRAME_LEN - 1); i++)
+    {
+        newChecksum += (m_frame.raw[i] % UINT8_MAX);
+    }
+
+    // Frame is valid when both checksums are the same.
+    return !(newChecksum - m_frame.fields.m_checksum);
+}
+
 /******************************************************************************
  * Private Methods
  *****************************************************************************/
