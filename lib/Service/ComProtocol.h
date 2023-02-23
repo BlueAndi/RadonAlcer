@@ -95,7 +95,7 @@ public:
     /**
      * Get ComProtocol instance.
      *
-     * @return Board instance
+     * @return ComProtocol instance
      */
     static ComProtocol& getInstance();
 
