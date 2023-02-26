@@ -87,7 +87,16 @@ public:
      * Manage the Server functions.
      * Call this function cyclic.
      */
-    void process();
+    void process()
+    {
+        // Synced
+        // Heartbeat
+        // Process RX data
+
+        // -------------------------
+        // Not Synced
+        // Heartbeat
+    }
 
 private:
     /**
