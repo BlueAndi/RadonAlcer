@@ -74,7 +74,7 @@ public:
     /**
      * Construct the NT Server.
      */
-    NTServer() : m_isSynced(false)
+    NTServer() : m_dataChannels{nullptr}, m_isSynced(false)
     {
         m_dataChannels[0] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
             [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
