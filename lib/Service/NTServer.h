@@ -94,6 +94,7 @@ public:
     void process()
     {
         // Process RX data
+        processRxData();
 
         // Periodic Heartbeat
         heartbeat();
@@ -166,6 +167,21 @@ private:
      */
     void callbackControlChannel(uint8_t* rcvData, uint8_t length)
     {
+    }
+
+    /**
+     * Receive and process RX Data.
+     */
+    void processRxData()
+    {
+        // Check for received data
+
+        // Create Frame and copy data into "raw" field.
+
+        // Determine which callback to call, if any.
+
+        // Callback
+
     }
 
     /**
