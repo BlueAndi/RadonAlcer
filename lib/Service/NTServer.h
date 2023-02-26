@@ -112,6 +112,9 @@ private:
         uint8_t         m_number;   /**< Number of the channel. */
         ChannelCallback m_callback; /**< Callback to provide received data to the application. */
 
+        /**
+         * Channel Constructor.
+         */
         Channel(const char* name, uint8_t number, ChannelCallback cb) : m_name(name), m_number(number), m_callback(cb)
         {
         }
