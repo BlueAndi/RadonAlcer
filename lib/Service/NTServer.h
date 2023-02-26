@@ -51,13 +51,15 @@
  * Macros
  *****************************************************************************/
 
+#define CONTROL_CHANNEL_NUMBER (0)
+
 /******************************************************************************
  * Types and Classes
  *****************************************************************************/
 
 /**
  *  Class for the NT Server.
- *  @tparam maxChannels Number of maximum channels that can be configured.
+ *  @tparam maxChannels Number of channels that can be configured incl. the Control Channel.
  */
 template<uint8_t maxChannels>
 class NTServer
@@ -74,6 +76,8 @@ public:
      */
     NTServer()
     {
+        m_dataChannels[0] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
+            [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
     }
 
     /**
@@ -104,15 +108,26 @@ private:
      */
     struct Channel
     {
-        char*           name;     /**< Name of the channel. */
-        uint8_t         number;   /**< Number of the channel. */
-        ChannelCallback callback; /**< Callback to provide received data to the application. */
+        const char*     m_name;     /**< Name of the channel. */
+        uint8_t         m_number;   /**< Number of the channel. */
+        ChannelCallback m_callback; /**< Callback to provide received data to the application. */
+
+        Channel(const char* name, uint8_t number, ChannelCallback cb) : m_name(name), m_number(number), m_callback(cb)
+        {
+        }
     };
 
     /**
-     *  List of Channels.
+     *  Array of Data Channels.
      */
-    Channel* m_channels[maxChannels];
+    Channel* m_dataChannels[maxChannels];
+
+    /**
+     * Callback for the Control Channel
+     */
+    void callbackControlChannel(uint8_t* rcvData, uint8_t length)
+    {
+    }
 
 private:
     NTServer(const NTServer& avg);

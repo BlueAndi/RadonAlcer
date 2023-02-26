@@ -83,7 +83,7 @@ typedef union _Frame
 ## Control Channel (Channel 0)
 
 - Control Channel: Exchange of Commands. Can not be used to send data.
-- Channel 0 has no Callback. The state of the server can be polled by the application through getter functions ( or similar depending on the implementation).
+- Channel 0 has no **external** Callback. The state of the server can be polled by the application through getter functions ( or similar depending on the implementation).
 - D0 (Data Byte 0) is used as a Command Byte. Defines the command that is being sent.
 - Even-number *Commands* in D0 are used as Commands, while uneven-number *Commands* are used as the response to the immediately previous (n-1) command.
 
