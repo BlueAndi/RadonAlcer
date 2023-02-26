@@ -93,13 +93,10 @@ public:
      */
     void process()
     {
-        // Synced
-        // Heartbeat
         // Process RX data
 
-        // -------------------------
-        // Not Synced
-        // Heartbeat
+        // Periodic Heartbeat
+        heartbeat();
     }
 
 private:
@@ -169,6 +166,22 @@ private:
      */
     void callbackControlChannel(uint8_t* rcvData, uint8_t length)
     {
+    }
+
+    /**
+     * Periodic heartbeat.
+     * Sends SYNC Command depending on the current Sync state.
+     */
+    void heartbeat()
+    {
+        if (m_isSynced)
+        {
+            // Send every 5 seconds.
+        }
+        else
+        {
+            // Send every 1 second.
+        }
     }
 
     /**
