@@ -74,7 +74,7 @@ public:
     /**
      * Construct the NT Server.
      */
-    NTServer()
+    NTServer() : m_isSynced(false)
     {
         m_dataChannels[0] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
             [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
@@ -170,6 +170,11 @@ private:
     void callbackControlChannel(uint8_t* rcvData, uint8_t length)
     {
     }
+
+    /**
+     * Current Sync state.
+     */
+    bool m_isSynced;
 
 private:
     NTServer(const NTServer& avg);
