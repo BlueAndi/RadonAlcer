@@ -174,6 +174,14 @@ private:
 
     } __attribute__((packed)) Frame;
 
+    enum COMMANDS : uint8_t
+    {
+        SYNC = 0x00,
+        SYNC_RSP,
+        SCRB,
+        SCRB_RSP
+    };
+
     /**
      *  Array of Data Channels.
      */
@@ -232,7 +240,7 @@ private:
             uint8_t lowMSB = ((lowBytes & 0xFF00) >> 8U);
             uint8_t lowLSB = (lowBytes & 0x00FF);
 
-            uint8_t buf[5] = {0x00, hiMSB, hiLSB, lowMSB, lowLSB};
+            uint8_t buf[5] = {COMMANDS::SYNC, hiMSB, hiLSB, lowMSB, lowLSB};
 
             send(CONTROL_CHANNEL_NUMBER, buf, sizeof(buf));
             m_lastHeartbeat = currentTimestamp;
