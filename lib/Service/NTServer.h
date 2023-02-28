@@ -192,6 +192,41 @@ private:
      */
     void callbackControlChannel(uint8_t* rcvData, uint8_t length)
     {
+        if (0U != length)
+        {
+            uint8_t cmdByte = rcvData[0];
+            uint32_t rcvTimestamp = 0;
+
+            switch (cmdByte)
+            {
+            case COMMANDS::SYNC_RSP:
+            {
+                uint32_t rcvTimestamp = (rcvData[1] << 24) +
+                                        (rcvData[2] << 16) +
+                                        (rcvData[3] << 8) +
+                                        (rcvData[4]);
+
+                // Check Timestamp with m_lastSyncCommand
+                if (0U == (rcvTimestamp - m_lastSyncCommand))
+                {
+                    m_lastSyncResponse = m_lastSyncCommand;
+                    m_isSynced = true;
+                }
+
+                break;
+            }
+
+            case COMMANDS::SCRB:
+            {
+                break;
+            }
+
+            default:
+            {
+                break;
+            }
+            }
+        }
     }
 
     /**
