@@ -170,7 +170,7 @@ private:
         } __attribute__((packed)) fields;
 
         /** Raw Frame Data */
-        uint8_t raw[MAX_FRAME_LEN];
+        uint8_t raw[MAX_FRAME_LEN] = {0};
 
     } __attribute__((packed)) Frame;
 
@@ -251,7 +251,6 @@ private:
         {
             Frame newFrame;
             newFrame.fields.m_channel  = channel;
-            newFrame.fields.m_dlc      = 0U;
             newFrame.fields.m_checksum = channel % UINT8_MAX;
 
             for (uint8_t i = 0; i < length; i++)
