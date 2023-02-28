@@ -200,10 +200,10 @@ private:
             {
             case COMMANDS::SYNC_RSP:
             {
-                uint32_t rcvTimestamp = (rcvData[1] << 24) +
-                                        (rcvData[2] << 16) +
-                                        (rcvData[3] << 8) +
-                                        (rcvData[4]);
+                uint32_t rcvTimestamp = ((uint32_t) rcvData[1] << 24) |
+                                        ((uint32_t) rcvData[2] << 16) |
+                                        ((uint32_t) rcvData[3] << 8) |
+                                        ((uint32_t) rcvData[4]);
 
                 // Check Timestamp with m_lastSyncCommand
                 if (0U == (rcvTimestamp - m_lastSyncCommand))
