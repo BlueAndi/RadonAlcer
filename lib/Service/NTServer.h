@@ -231,6 +231,12 @@ private:
 
         if ((currentTimestamp - m_lastSyncCommand) >= heartbeatPeriod)
         {
+            // Timeout
+            if (0U != (m_lastSyncCommand - m_lastSyncResponse))
+            {
+                m_isSynced = false;
+            }
+            
             // Send SYNC Command
             uint16_t hiBytes  = ((currentTimestamp & 0xFFFF0000) >> 16U);
             uint16_t lowBytes = (currentTimestamp & 0x0000FFFF);
