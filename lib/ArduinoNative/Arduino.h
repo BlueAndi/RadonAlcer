@@ -161,7 +161,7 @@ public:
     {
         for (size_t i = 0; i < length; i++)
         {
-            printf("%X", buffer[i]);
+            printf("%02hhX", buffer[i]);
         }
         printf("\n");
     }
