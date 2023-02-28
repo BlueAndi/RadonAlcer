@@ -45,7 +45,6 @@
  *****************************************************************************/
 
 #include <stdint.h>
-#include <functional>
 #include <Arduino.h>
 
 /******************************************************************************
@@ -72,7 +71,7 @@ public:
      * Channel Notification Prototype Callback.
      * Provides the received data in the respective channel to the application.
      */
-    typedef std::function<void(uint8_t* rcvData, uint8_t length)> ChannelCallback;
+    typedef void (* ChannelCallback)(uint8_t* rcvData, uint8_t length);
 
     /**
      * Construct the NT Server.
