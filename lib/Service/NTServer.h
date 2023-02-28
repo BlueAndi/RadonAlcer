@@ -46,12 +46,14 @@
 
 #include <stdint.h>
 #include <functional>
+#include <Arduino.h>
 
 /******************************************************************************
  * Macros
  *****************************************************************************/
 
-#define CONTROL_CHANNEL_NUMBER (0)
+#define HEATBEAT_PERIOD_SYNCED   (5000) /**< Period of Heartbeat when Synced */
+#define HEATBEAT_PERIOD_UNSYNCED (1000) /**< Period of Heartbeat when Unsynced */
 
 /******************************************************************************
  * Types and Classes
@@ -74,7 +76,7 @@ public:
     /**
      * Construct the NT Server.
      */
-    NTServer() : m_dataChannels{nullptr}, m_isSynced(false)
+    NTServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastHeartbeat(0U)
     {
         m_dataChannels[0] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
             [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
@@ -190,13 +192,19 @@ private:
      */
     void heartbeat()
     {
+        uint32_t heartbeatPeriod = HEATBEAT_PERIOD_UNSYNCED;
+        uint32_t currentTimestamp = millis();
+
         if (m_isSynced)
         {
-            // Send every 5 seconds.
+            heartbeatPeriod = HEATBEAT_PERIOD_SYNCED;
         }
-        else
+        
+        if ((currentTimestamp - m_lastHeartbeat) >= heartbeatPeriod)
         {
-            // Send every 1 second.
+            // Send SYNC Command
+
+            m_lastHeartbeat = currentTimestamp;
         }
     }
 
@@ -204,6 +212,11 @@ private:
      * Current Sync state.
      */
     bool m_isSynced;
+
+    /**
+     * Last Heartbeat timestamp.
+     */
+    uint32_t m_lastHeartbeat;
 
 private:
     NTServer(const NTServer& avg);
