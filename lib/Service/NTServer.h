@@ -77,7 +77,7 @@ public:
     /**
      * Construct the NT Server.
      */
-    NTServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastHeartbeat(0U)
+    NTServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U)
     {
         m_dataChannels[CONTROL_CHANNEL_NUMBER] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
             [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
@@ -229,7 +229,7 @@ private:
             heartbeatPeriod = HEATBEAT_PERIOD_SYNCED;
         }
 
-        if ((currentTimestamp - m_lastHeartbeat) >= heartbeatPeriod)
+        if ((currentTimestamp - m_lastSyncCommand) >= heartbeatPeriod)
         {
             // Send SYNC Command
             uint16_t hiBytes  = ((currentTimestamp & 0xFFFF0000) >> 16U);
@@ -243,7 +243,7 @@ private:
             uint8_t buf[5] = {COMMANDS::SYNC, hiMSB, hiLSB, lowMSB, lowLSB};
 
             send(CONTROL_CHANNEL_NUMBER, buf, sizeof(buf));
-            m_lastHeartbeat = currentTimestamp;
+            m_lastSyncCommand = currentTimestamp;
         }
     }
 
@@ -301,7 +301,12 @@ private:
     /**
      * Last Heartbeat timestamp.
      */
-    uint32_t m_lastHeartbeat;
+    uint32_t m_lastSyncCommand;
+
+    /**
+     * Last sync response timestamp.
+     */
+    uint32_t m_lastSyncResponse;
 
 private:
     NTServer(const NTServer& avg);
