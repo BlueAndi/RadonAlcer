@@ -174,12 +174,15 @@ private:
 
     } __attribute__((packed)) Frame;
 
+    /**
+     * Enumeration of Commands of Control Channel.
+     */
     enum COMMANDS : uint8_t
     {
-        SYNC = 0x00,
-        SYNC_RSP,
-        SCRB,
-        SCRB_RSP
+        SYNC = 0x00, /**< SYNC Command */
+        SYNC_RSP,    /**< SYNC Response */
+        SCRB,        /**< Subscribe Command */
+        SCRB_RSP     /**< Subscribe Response */
     };
 
     /**
