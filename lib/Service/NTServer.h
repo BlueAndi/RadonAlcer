@@ -192,13 +192,19 @@ private:
     void processRxData()
     {
         // Check for received data
+        // TODO: Change rcvData for Serial.read();
+        uint8_t rcvData[MAX_FRAME_LEN] = {0};
 
         // Create Frame and copy data into "raw" field.
+        Frame rcvFrame;
+        memcpy(&rcvFrame.raw, rcvData, MAX_FRAME_LEN);
 
         // Determine which callback to call, if any.
-
-        // Callback
-
+        if (nullptr != m_dataChannels[rcvFrame.fields.m_channel])
+        {
+            // Callback
+            m_dataChannels[rcvFrame.fields.m_channel]->m_callback(rcvFrame.fields.m_data, rcvFrame.fields.m_dlc);
+        }
     }
 
     /**
