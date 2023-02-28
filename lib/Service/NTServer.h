@@ -195,7 +195,6 @@ private:
         if (0U != length)
         {
             uint8_t cmdByte = rcvData[0];
-            uint32_t rcvTimestamp = 0;
 
             switch (cmdByte)
             {
