@@ -39,6 +39,7 @@
 #include <Mileage.h>
 #include <Logging.h>
 #include <LogSinkPrinter.h>
+#include <NTServer.h>
 
 /******************************************************************************
  * Macros
@@ -65,6 +66,9 @@ static StateMachine gSystemStateMachine;
 
 /** Serial log sink */
 static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
+
+/** Instance of NT Server with 10 maximum Channels */
+static NTServer<10> gNTServer;
 
 /******************************************************************************
  * External functions
@@ -100,6 +104,7 @@ void loop() // cppcheck-suppress unusedFunction
 {
     Mileage::getInstance().process();
     gSystemStateMachine.process();
+    gNTServer.process();
 }
 
 /******************************************************************************
