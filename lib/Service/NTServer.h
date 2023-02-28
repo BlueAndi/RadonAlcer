@@ -52,6 +52,7 @@
  * Macros
  *****************************************************************************/
 
+#define CONTROL_CHANNEL_NUMBER   (0)    /**< Number of Control Channel */
 #define HEATBEAT_PERIOD_SYNCED   (5000) /**< Period of Heartbeat when Synced */
 #define HEATBEAT_PERIOD_UNSYNCED (1000) /**< Period of Heartbeat when Unsynced */
 
@@ -78,7 +79,7 @@ public:
      */
     NTServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastHeartbeat(0U)
     {
-        m_dataChannels[0] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
+        m_dataChannels[CONTROL_CHANNEL_NUMBER] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
             [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
     }
 
