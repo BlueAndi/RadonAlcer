@@ -103,6 +103,20 @@ public:
         heartbeat();
     }
 
+    /**
+     * Send a frame with the selected bytes.
+     * @param[in] channel Channel to send frame to.
+     * @param[in] data Byte buffer to be sent.
+     * @param[in] length Amount of bytes to send.
+     */
+    void sendData(uint8_t channel, const uint8_t* data, uint8_t length)
+    {
+        if (CONTROL_CHANNEL_NUMBER != channel)
+        {
+            send(channel, data, length);
+        }
+    }
+
 private:
     /**
      * Channel Definition.
@@ -193,20 +207,77 @@ private:
      */
     void heartbeat()
     {
-        uint32_t heartbeatPeriod = HEATBEAT_PERIOD_UNSYNCED;
+        uint32_t heartbeatPeriod  = HEATBEAT_PERIOD_UNSYNCED;
         uint32_t currentTimestamp = millis();
 
         if (m_isSynced)
         {
             heartbeatPeriod = HEATBEAT_PERIOD_SYNCED;
         }
-        
+
         if ((currentTimestamp - m_lastHeartbeat) >= heartbeatPeriod)
         {
             // Send SYNC Command
+            uint16_t hiBytes  = ((currentTimestamp & 0xFFFF0000) >> 16U);
+            uint16_t lowBytes = (currentTimestamp & 0x0000FFFF);
 
+            uint8_t hiMSB  = ((hiBytes & 0xFF00) >> 8U);
+            uint8_t hiLSB  = (hiBytes & 0x00FF);
+            uint8_t lowMSB = ((lowBytes & 0xFF00) >> 8U);
+            uint8_t lowLSB = (lowBytes & 0x00FF);
+
+            uint8_t buf[5] = {0x00, hiMSB, hiLSB, lowMSB, lowLSB};
+
+            send(CONTROL_CHANNEL_NUMBER, buf, sizeof(buf));
             m_lastHeartbeat = currentTimestamp;
         }
+    }
+
+    /**
+     * Send a frame with the selected bytes.
+     * @param[in] channel Channel to send frame to.
+     * @param[in] data Byte buffer to be sent.
+     * @param[in] length Amount of bytes to send.
+     */
+    void send(uint8_t channel, const uint8_t* data, uint8_t length)
+    {
+        if ((MAX_DATA_LEN >= length) && (m_isSynced || (CONTROL_CHANNEL_NUMBER == channel)))
+        {
+            Frame newFrame;
+            newFrame.fields.m_channel  = channel;
+            newFrame.fields.m_dlc      = 0U;
+            newFrame.fields.m_checksum = channel % UINT8_MAX;
+
+            for (uint8_t i = 0; i < length; i++)
+            {
+                newFrame.fields.m_data[i] = data[i];
+                newFrame.fields.m_dlc++;
+                newFrame.fields.m_checksum = ((newFrame.fields.m_checksum + data[i] + 1) % UINT8_MAX);
+            }
+
+            if (isFrameValid(newFrame))
+            {
+                Serial.write(newFrame.raw, MAX_FRAME_LEN);
+            }
+        }
+    }
+
+    /**
+     * Check if a Frame is valid using its checksum.
+     * @param[in] frame Frame to be checked.
+     * @returns true if the Frame's checksum is correct.
+     */
+    bool isFrameValid(const Frame& frame)
+    {
+        uint8_t newChecksum = 0;
+
+        for (uint8_t i = 0; i < (MAX_FRAME_LEN - 1); i++)
+        {
+            newChecksum += (frame.raw[i] % UINT8_MAX);
+        }
+
+        // Frame is valid when both checksums are the same.
+        return !(newChecksum - frame.fields.m_checksum);
     }
 
     /**
