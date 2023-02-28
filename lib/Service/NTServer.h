@@ -62,7 +62,7 @@
 
 /**
  *  Class for the NT Server.
- *  @tparam maxChannels Number of channels that can be configured incl. the Control Channel.
+ *  @tparam maxChannels Number of data channels that can be configured.
  */
 template<uint8_t maxChannels>
 class NTServer
@@ -79,8 +79,6 @@ public:
      */
     NTServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U)
     {
-        m_dataChannels[CONTROL_CHANNEL_NUMBER] = new Channel("Control", CONTROL_CHANNEL_NUMBER,
-            [this](uint8_t* data, uint8_t len) { this->callbackControlChannel(data, len); });
     }
 
     /**
@@ -246,7 +244,11 @@ private:
         memcpy(&rcvFrame.raw, rcvData, MAX_FRAME_LEN);
 
         // Determine which callback to call, if any.
-        if (nullptr != m_dataChannels[rcvFrame.fields.m_channel])
+        if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.m_channel)
+        {
+            callbackControlChannel(rcvFrame.fields.m_data, rcvFrame.fields.m_dlc);
+        }
+        else if (nullptr != m_dataChannels[rcvFrame.fields.m_channel])
         {
             // Callback
             m_dataChannels[rcvFrame.fields.m_channel]->m_callback(rcvFrame.fields.m_data, rcvFrame.fields.m_dlc);
