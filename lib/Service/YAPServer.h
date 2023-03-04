@@ -150,20 +150,28 @@ private:
     /** Data container of the Frame Fields */
     typedef union _Frame
     {
-        /** Frame Fields */
-        struct _Fields
+        union _Fields
         {
-            /** Channel ID */
-            uint8_t m_channel;
+            /** Frame Fields */
+            struct _Header
+            {
+                /** Channel ID */
+                uint8_t m_channel;
 
-            /** Data Length */
-            uint8_t m_dlc;
+                /** Data Length */
+                uint8_t m_dlc;
 
-            /** Frame Checksum */
-            uint8_t m_checksum;
+                /** Frame Checksum */
+                uint8_t m_checksum;
 
-            /** Data of the Frame */
-            uint8_t m_data[MAX_DATA_LEN];
+            } __attribute__((packed)) header;
+
+            struct _Payload
+            {
+                /** Data of the Frame */
+                uint8_t m_data[MAX_DATA_LEN];
+
+            } __attribute__((packed)) payload;
 
         } __attribute__((packed)) fields;
 
@@ -243,14 +251,14 @@ private:
         memcpy(&rcvFrame.raw, rcvData, MAX_FRAME_LEN);
 
         // Determine which callback to call, if any.
-        if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.m_channel)
+        if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.m_channel)
         {
-            callbackControlChannel(rcvFrame.fields.m_data, rcvFrame.fields.m_dlc);
+            callbackControlChannel(rcvFrame.fields.payload.m_data, rcvFrame.fields.header.m_dlc);
         }
-        else if (nullptr != m_dataChannels[rcvFrame.fields.m_channel])
+        else if (nullptr != m_dataChannels[rcvFrame.fields.header.m_channel])
         {
             // Callback
-            m_dataChannels[rcvFrame.fields.m_channel]->m_callback(rcvFrame.fields.m_data, rcvFrame.fields.m_dlc);
+            m_dataChannels[rcvFrame.fields.header.m_channel]->m_callback(rcvFrame.fields.payload.m_data, rcvFrame.fields.header.m_dlc);
         }
     }
 
@@ -303,14 +311,14 @@ private:
         if ((MAX_DATA_LEN >= length) && (m_isSynced || (CONTROL_CHANNEL_NUMBER == channel)))
         {
             Frame newFrame;
-            newFrame.fields.m_channel  = channel;
-            newFrame.fields.m_checksum = channel % UINT8_MAX;
+            newFrame.fields.header.m_channel  = channel;
+            newFrame.fields.header.m_checksum = channel % UINT8_MAX;
 
             for (uint8_t i = 0; i < length; i++)
             {
-                newFrame.fields.m_data[i] = data[i];
-                newFrame.fields.m_dlc++;
-                newFrame.fields.m_checksum = ((newFrame.fields.m_checksum + data[i] + 1) % UINT8_MAX);
+                newFrame.fields.payload.m_data[i] = data[i];
+                newFrame.fields.header.m_dlc++;
+                newFrame.fields.header.m_checksum = ((newFrame.fields.header.m_checksum + data[i] + 1) % UINT8_MAX);
             }
 
             if (isFrameValid(newFrame))
@@ -335,7 +343,7 @@ private:
         }
 
         // Frame is valid when both checksums are the same.
-        return !(newChecksum - frame.fields.m_checksum);
+        return !(newChecksum - frame.fields.header.m_checksum);
     }
 
     /**
