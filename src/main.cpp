@@ -68,7 +68,7 @@ static StateMachine gSystemStateMachine;
 static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
 
 /** Instance of YAP Server with 10 maximum Channels */
-static YAPServer<10> gNTServer;
+static YAPServer<10> gYAPServer;
 
 /******************************************************************************
  * External functions
@@ -104,7 +104,7 @@ void loop() // cppcheck-suppress unusedFunction
 {
     Mileage::getInstance().process();
     gSystemStateMachine.process();
-    gNTServer.process();
+    gYAPServer.process();
 }
 
 /******************************************************************************
