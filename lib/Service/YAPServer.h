@@ -122,12 +122,17 @@ private:
     {
         const char*     m_name;     /**< Name of the channel. */
         uint8_t         m_number;   /**< Number of the channel. */
+        uint8_t         m_dlc;      /**< Payload length of channel */
         ChannelCallback m_callback; /**< Callback to provide received data to the application. */
 
         /**
          * Channel Constructor.
          */
-        Channel(const char* name, uint8_t number, ChannelCallback cb) : m_name(name), m_number(number), m_callback(cb)
+        Channel(const char* name, uint8_t number, uint8_t dlc ChannelCallback cb) :
+                m_name(name),
+                m_number(number),
+                m_dlc(dlc),
+                m_callback(cb)
         {
         }
     };
