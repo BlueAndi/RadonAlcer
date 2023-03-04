@@ -159,7 +159,7 @@ private:
     /** Data container of the Frame Fields */
     typedef union _Frame
     {
-        union _Fields
+        struct _Fields
         {
             /** Frame Fields */
             struct _Header
