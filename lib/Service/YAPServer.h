@@ -158,17 +158,26 @@ private:
     {
         struct _Fields
         {
-            /** Frame Fields */
-            struct _Header
+            /** Header */
+            union _Header
             {
-                /** Channel ID */
-                uint8_t m_channel;
+                struct _HeaderFields
+                {
 
-                /** Frame Checksum */
-                uint8_t m_checksum;
+                    /** Channel ID */
+                    uint8_t m_channel;
+
+                    /** Frame Checksum */
+                    uint8_t m_checksum;
+
+                } __attribute__((packed)) headerFields;
+
+                /** Raw Header Data*/
+                uint8_t rawHeader[HEADER_LEN];
 
             } __attribute__((packed)) header;
 
+            /** Payload */
             struct _Payload
             {
                 /** Data of the Frame */
@@ -252,14 +261,14 @@ private:
         memcpy(&rcvFrame.raw, rcvData, MAX_FRAME_LEN);
 
         // Determine which callback to call, if any.
-        if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.m_channel)
+        if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.headerFields.m_channel)
         {
             callbackControlChannel(rcvFrame.fields.payload.m_data);
         }
-        else if (nullptr != m_dataChannels[rcvFrame.fields.header.m_channel])
+        else if (nullptr != m_dataChannels[rcvFrame.fields.header.headerFields.m_channel])
         {
             // Callback
-            m_dataChannels[rcvFrame.fields.header.m_channel]->m_callback(rcvFrame.fields.payload.m_data);
+            m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_callback(rcvFrame.fields.payload.m_data);
         }
     }
 
@@ -314,7 +323,7 @@ private:
             const uint8_t frameLength = HEADER_LEN + payloadLength;
             Frame         newFrame;
             uint32_t      sum                = channel;
-            newFrame.fields.header.m_channel = channel;
+            newFrame.fields.header.headerFields.m_channel = channel;
 
             for (uint8_t i = 0; i < payloadLength; i++)
             {
@@ -322,7 +331,7 @@ private:
                 sum += data[i];
             }
 
-            newFrame.fields.header.m_checksum = (sum % UINT8_MAX);
+            newFrame.fields.header.headerFields.m_checksum = (sum % UINT8_MAX);
 
             Serial.write(newFrame.raw, frameLength);
         }
@@ -335,7 +344,7 @@ private:
      */
     bool isFrameValid(const Frame& frame, uint8_t payloadLength)
     {
-        uint32_t sum = frame.fields.header.m_channel;
+        uint32_t sum = frame.fields.header.headerFields.m_channel;
 
         for (uint8_t i = 0; i < payloadLength; i++)
         {
@@ -343,7 +352,7 @@ private:
         }
 
         // Frame is valid when both checksums are the same.
-        return ((sum % 255) == frame.fields.header.m_checksum);
+        return ((sum % 255) == frame.fields.header.headerFields.m_checksum);
     }
 
     /**
