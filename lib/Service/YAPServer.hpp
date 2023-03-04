@@ -149,32 +149,35 @@ private:
      */
     void processRxData()
     {
+        uint8_t payloadLength = 0U;
+
         // Check for received data
         // TODO: Change rcvData for Serial.read();
         uint8_t rcvData[MAX_FRAME_LEN] = {0};
+
 
         // Create Frame and copy header into "rawHeader" field.
         Frame rcvFrame;
         memcpy(&rcvFrame.fields.header.rawHeader, rcvData, HEADER_LEN);
 
-        // Determine how many bytes long the payload is.
-        uint8_t payloadLength = m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc;
-
-        // Copy complete Frame
-        memcpy(&rcvFrame.raw, rcvData, (HEADER_LEN + payloadLength));
-
-        if (!isFrameValid(rcvFrame, payloadLength))
-        {
-            // Do nothing. Frame is not correct.
-        }
-        else
         // Determine which callback to call, if any.
         if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.headerFields.m_channel)
         {
+            payloadLength = HEARTBEAT_PAYLOAD_LENGTH;
+
+            // Copy complete Frame
+            memcpy(&rcvFrame.raw, rcvData, (HEADER_LEN + payloadLength));
+
             callbackControlChannel(rcvFrame.fields.payload.m_data);
         }
         else if (nullptr != m_dataChannels[rcvFrame.fields.header.headerFields.m_channel])
         {
+            // Determine how many bytes long the payload is.
+            payloadLength = m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc;
+
+            // Copy complete Frame
+            memcpy(&rcvFrame.raw, rcvData, (HEADER_LEN + payloadLength));
+
             // Callback
             m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_callback(rcvFrame.fields.payload.m_data);
         }
