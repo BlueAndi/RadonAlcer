@@ -33,8 +33,8 @@
  * @{
  */
 
-#ifndef NT_SERVER_H
-#define NT_SERVER_H
+#ifndef YAP_SERVER_H
+#define YAP_SERVER_H
 
 /******************************************************************************
  * Compile Switches
@@ -390,4 +390,4 @@ private:
  * Functions
  *****************************************************************************/
 
-#endif /* NT_SERVER_H */
+#endif /* YAP_SERVER_H */
