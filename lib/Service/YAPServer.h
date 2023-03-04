@@ -25,7 +25,7 @@
     DESCRIPTION
 *******************************************************************************/
 /**
- * @brief  NT ComProtocol Server
+ * @brief  Yet Another Protocol (YAP) Server
  * @author Gabryel Reyes <gabryelrdiaz@gmail.com>
  *
  * @addtogroup Service
@@ -60,11 +60,11 @@
  *****************************************************************************/
 
 /**
- *  Class for the NT Server.
+ *  Class for the YAP Server.
  *  @tparam maxChannels Number of data channels that can be configured.
  */
 template<uint8_t maxChannels>
-class NTServer
+class YAPServer
 {
 public:
     /**
@@ -74,16 +74,16 @@ public:
     typedef void (* ChannelCallback)(uint8_t* rcvData, uint8_t length);
 
     /**
-     * Construct the NT Server.
+     * Construct the YAP Server.
      */
-    NTServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U)
+    YAPServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U)
     {
     }
 
     /**
-     * Destroy the NT Server.
+     * Destroy the YAP Server.
      */
-    ~NTServer()
+    ~YAPServer()
     {
     }
 
@@ -353,8 +353,8 @@ private:
     uint32_t m_lastSyncResponse;
 
 private:
-    NTServer(const NTServer& avg);
-    NTServer& operator=(const NTServer& avg);
+    YAPServer(const YAPServer& avg);
+    YAPServer& operator=(const YAPServer& avg);
 };
 
 /******************************************************************************

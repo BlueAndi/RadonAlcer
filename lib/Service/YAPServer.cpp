@@ -25,7 +25,7 @@
     DESCRIPTION
 *******************************************************************************/
 /**
- * @brief  Class for the NT Server.
+ * @brief  Class for the YAP Server.
  * @author Gabryel Reyes <gabryelrdiaz@gmail.com>
  */
 
@@ -33,7 +33,7 @@
  * Includes
  *****************************************************************************/
 
-#include "NTServer.h"
+#include "YAPServer.h"
 
 /******************************************************************************
  * Compiler Switches

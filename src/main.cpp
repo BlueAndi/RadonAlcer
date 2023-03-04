@@ -39,7 +39,7 @@
 #include <Mileage.h>
 #include <Logging.h>
 #include <LogSinkPrinter.h>
-#include <NTServer.h>
+#include <YAPServer.h>
 
 /******************************************************************************
  * Macros
@@ -67,8 +67,8 @@ static StateMachine gSystemStateMachine;
 /** Serial log sink */
 static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
 
-/** Instance of NT Server with 10 maximum Channels */
-static NTServer<10> gNTServer;
+/** Instance of YAP Server with 10 maximum Channels */
+static YAPServer<10> gNTServer;
 
 /******************************************************************************
  * External functions
