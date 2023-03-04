@@ -111,11 +111,6 @@ public:
 
 private:
     /**
-     *  Array of Data Channels.
-     */
-    Channel* m_dataChannels[maxChannels];
-
-    /**
      * Callback for the Control Channel
      */
     void callbackControlChannel(uint8_t* rcvData)
@@ -272,6 +267,12 @@ private:
         // Frame is valid when both checksums are the same.
         return ((sum % 255) == frame.fields.header.headerFields.m_checksum);
     }
+
+private:
+    /**
+     *  Array of Data Channels.
+     */
+    Channel* m_dataChannels[maxChannels];
 
     /**
      * Current Sync state.
