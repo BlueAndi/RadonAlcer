@@ -335,17 +335,17 @@ private:
      * @param[in] frame Frame to be checked.
      * @returns true if the Frame's checksum is correct.
      */
-    bool isFrameValid(const Frame& frame)
+    bool isFrameValid(const Frame& frame, uint8_t payloadLength)
     {
-        uint8_t newChecksum = 0;
+        uint32_t sum = frame.fields.header.m_channel;
 
-        for (uint8_t i = 0; i < (MAX_FRAME_LEN - 1); i++)
+        for (uint8_t i = 0; i < payloadLength; i++)
         {
-            newChecksum += (frame.raw[i] % UINT8_MAX);
+            sum += frame.fields.payload.m_data[i];
         }
 
         // Frame is valid when both checksums are the same.
-        return !(newChecksum - frame.fields.header.m_checksum);
+        return ((sum % 255) == frame.fields.header.m_checksum);
     }
 
     /**
