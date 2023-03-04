@@ -129,7 +129,7 @@ private:
         /**
          * Channel Constructor.
          */
-        Channel(const char* name, uint8_t number, uint8_t dlc ChannelCallback cb) :
+        Channel(const char* name, uint8_t number, uint8_t dlc, ChannelCallback cb) :
                 m_name(name),
                 m_number(number),
                 m_dlc(dlc),
