@@ -52,6 +52,7 @@
  *****************************************************************************/
 
 #define CONTROL_CHANNEL_NUMBER   (0)    /**< Number of Control Channel */
+#define HEARTBEAT_PAYLOAD_LENGTH (5)    /**< DLC of Heartbeat Command */
 #define HEATBEAT_PERIOD_SYNCED   (5000) /**< Period of Heartbeat when Synced */
 #define HEATBEAT_PERIOD_UNSYNCED (1000) /**< Period of Heartbeat when Unsynced */
 
@@ -298,9 +299,9 @@ private:
             uint8_t lowMSB = ((lowBytes & 0xFF00) >> 8U);
             uint8_t lowLSB = (lowBytes & 0x00FF);
 
-            uint8_t buf[5] = {COMMANDS::SYNC, hiMSB, hiLSB, lowMSB, lowLSB};
+            uint8_t buf[HEARTBEAT_PAYLOAD_LENGTH] = {COMMANDS::SYNC, hiMSB, hiLSB, lowMSB, lowLSB};
 
-            send(CONTROL_CHANNEL_NUMBER, buf, sizeof(buf));
+            send(CONTROL_CHANNEL_NUMBER, buf, HEARTBEAT_PAYLOAD_LENGTH);
             m_lastSyncCommand = currentTimestamp;
         }
     }
