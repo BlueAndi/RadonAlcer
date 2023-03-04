@@ -141,14 +141,11 @@ private:
     /** Channel Field Length in Bytes */
     static const uint8_t CHANNEL_LEN = 1U;
 
-    /** DLC Field Length in Bytes */
-    static const uint8_t DLC_LEN = 1U;
-
     /** Checksum Field Length in Bytes */
     static const uint8_t CHECKSUM_LEN = 1U;
 
     /** Length of Complete Header Field */
-    static const uint8_t HEADER_LEN = CHANNEL_LEN + DLC_LEN + CHECKSUM_LEN;
+    static const uint8_t HEADER_LEN = CHANNEL_LEN + CHECKSUM_LEN;
 
     /** Data Field Length in Bytes */
     static const uint8_t MAX_DATA_LEN = 8U;
@@ -166,9 +163,6 @@ private:
             {
                 /** Channel ID */
                 uint8_t m_channel;
-
-                /** Data Length */
-                uint8_t m_dlc;
 
                 /** Frame Checksum */
                 uint8_t m_checksum;
@@ -320,21 +314,19 @@ private:
         if ((MAX_DATA_LEN >= payloadLength) && (m_isSynced || (CONTROL_CHANNEL_NUMBER == channel)))
         {
             const uint8_t frameLength = HEADER_LEN + payloadLength;
-            Frame newFrame;
-            newFrame.fields.header.m_channel  = channel;
-            newFrame.fields.header.m_checksum = channel % UINT8_MAX;
+            Frame         newFrame;
+            uint32_t      sum                = channel;
+            newFrame.fields.header.m_channel = channel;
 
             for (uint8_t i = 0; i < payloadLength; i++)
             {
                 newFrame.fields.payload.m_data[i] = data[i];
-                newFrame.fields.header.m_dlc++;
-                newFrame.fields.header.m_checksum = ((newFrame.fields.header.m_checksum + data[i] + 1) % UINT8_MAX);
+                sum += data[i];
             }
 
-            if (isFrameValid(newFrame))
-            {
-                Serial.write(newFrame.raw, frameLength);
-            }
+            newFrame.fields.header.m_checksum = (sum % UINT8_MAX);
+
+            Serial.write(newFrame.raw, frameLength);
         }
     }
 
