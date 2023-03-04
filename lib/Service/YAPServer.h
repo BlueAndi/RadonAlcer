@@ -144,14 +144,17 @@ private:
     /** DLC Field Length in Bytes */
     static const uint8_t DLC_LEN = 1U;
 
-    /** Data Field Length in Bytes */
-    static const uint8_t MAX_DATA_LEN = 8U;
-
     /** Checksum Field Length in Bytes */
     static const uint8_t CHECKSUM_LEN = 1U;
 
+    /** Length of Complete Header Field */
+    static const uint8_t HEADER_LEN = CHANNEL_LEN + DLC_LEN + CHECKSUM_LEN;
+
+    /** Data Field Length in Bytes */
+    static const uint8_t MAX_DATA_LEN = 8U;
+
     /** Total Frame Length in Bytes */
-    static const uint8_t MAX_FRAME_LEN = CHANNEL_LEN + DLC_LEN + MAX_DATA_LEN + CHECKSUM_LEN;
+    static const uint8_t MAX_FRAME_LEN = HEADER_LEN + MAX_DATA_LEN;
 
     /** Data container of the Frame Fields */
     typedef union _Frame
@@ -312,15 +315,16 @@ private:
      * @param[in] data Byte buffer to be sent.
      * @param[in] length Amount of bytes to send.
      */
-    void send(uint8_t channel, const uint8_t* data, uint8_t length)
+    void send(uint8_t channel, const uint8_t* data, uint8_t payloadLength)
     {
-        if ((MAX_DATA_LEN >= length) && (m_isSynced || (CONTROL_CHANNEL_NUMBER == channel)))
+        if ((MAX_DATA_LEN >= payloadLength) && (m_isSynced || (CONTROL_CHANNEL_NUMBER == channel)))
         {
+            const uint8_t frameLength = HEADER_LEN + payloadLength;
             Frame newFrame;
             newFrame.fields.header.m_channel  = channel;
             newFrame.fields.header.m_checksum = channel % UINT8_MAX;
 
-            for (uint8_t i = 0; i < length; i++)
+            for (uint8_t i = 0; i < payloadLength; i++)
             {
                 newFrame.fields.payload.m_data[i] = data[i];
                 newFrame.fields.header.m_dlc++;
@@ -329,7 +333,7 @@ private:
 
             if (isFrameValid(newFrame))
             {
-                Serial.write(newFrame.raw, MAX_FRAME_LEN);
+                Serial.write(newFrame.raw, frameLength);
             }
         }
     }
