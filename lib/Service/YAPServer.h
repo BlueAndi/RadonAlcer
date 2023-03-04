@@ -148,10 +148,10 @@ private:
     static const uint8_t HEADER_LEN = CHANNEL_LEN + CHECKSUM_LEN;
 
     /** Data Field Length in Bytes */
-    static const uint8_t MAX_DATA_LEN = 8U;
+    static const uint8_t MAX_DATA_LEN = UINT8_MAX;
 
     /** Total Frame Length in Bytes */
-    static const uint8_t MAX_FRAME_LEN = HEADER_LEN + MAX_DATA_LEN;
+    static const uint16_t MAX_FRAME_LEN = HEADER_LEN + MAX_DATA_LEN;
 
     /** Data container of the Frame Fields */
     typedef union _Frame
@@ -256,10 +256,21 @@ private:
         // TODO: Change rcvData for Serial.read();
         uint8_t rcvData[MAX_FRAME_LEN] = {0};
 
-        // Create Frame and copy data into "raw" field.
+        // Create Frame and copy header into "rawHeader" field.
         Frame rcvFrame;
-        memcpy(&rcvFrame.raw, rcvData, MAX_FRAME_LEN);
+        memcpy(&rcvFrame.fields.header.rawHeader, rcvData, HEADER_LEN);
 
+        // Determine how many bytes long the payload is.
+        uint8_t payloadLength = m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc;
+
+        // Copy complete Frame
+        memcpy(&rcvFrame.raw, rcvData, (HEADER_LEN + payloadLength));
+
+        if (!isFrameValid(rcvFrame, payloadLength))
+        {
+            // Do nothing. Frame is not correct.
+        }
+        else
         // Determine which callback to call, if any.
         if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.headerFields.m_channel)
         {
