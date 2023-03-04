@@ -39,7 +39,7 @@
 #include <Mileage.h>
 #include <Logging.h>
 #include <LogSinkPrinter.h>
-#include <YAPServer.h>
+#include <YAPServer.hpp>
 
 /******************************************************************************
  * Macros
