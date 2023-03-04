@@ -159,11 +159,12 @@ private:
             /** Data Length */
             uint8_t m_dlc;
 
+            /** Frame Checksum */
+            uint8_t m_checksum;
+
             /** Data of the Frame */
             uint8_t m_data[MAX_DATA_LEN];
 
-            /** Frame Checksum */
-            uint8_t m_checksum;
         } __attribute__((packed)) fields;
 
         /** Raw Frame Data */
