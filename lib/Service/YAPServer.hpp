@@ -44,7 +44,7 @@
  * Includes
  *****************************************************************************/
 
-#include <stdint.h>
+#include <YAPCommon.hpp>
 #include <Arduino.h>
 
 /******************************************************************************
@@ -68,12 +68,6 @@ template<uint8_t maxChannels>
 class YAPServer
 {
 public:
-    /**
-     * Channel Notification Prototype Callback.
-     * Provides the received data in the respective channel to the application.
-     */
-    typedef void (* ChannelCallback)(uint8_t* rcvData);
-
     /**
      * Construct the YAP Server.
      */
@@ -116,93 +110,6 @@ public:
     }
 
 private:
-    /**
-     * Channel Definition.
-     */
-    struct Channel
-    {
-        const char*     m_name;     /**< Name of the channel. */
-        uint8_t         m_number;   /**< Number of the channel. */
-        uint8_t         m_dlc;      /**< Payload length of channel */
-        ChannelCallback m_callback; /**< Callback to provide received data to the application. */
-
-        /**
-         * Channel Constructor.
-         */
-        Channel(const char* name, uint8_t number, uint8_t dlc, ChannelCallback cb) :
-                m_name(name),
-                m_number(number),
-                m_dlc(dlc),
-                m_callback(cb)
-        {
-        }
-    };
-
-    /** Channel Field Length in Bytes */
-    static const uint8_t CHANNEL_LEN = 1U;
-
-    /** Checksum Field Length in Bytes */
-    static const uint8_t CHECKSUM_LEN = 1U;
-
-    /** Length of Complete Header Field */
-    static const uint8_t HEADER_LEN = CHANNEL_LEN + CHECKSUM_LEN;
-
-    /** Data Field Length in Bytes */
-    static const uint8_t MAX_DATA_LEN = UINT8_MAX;
-
-    /** Total Frame Length in Bytes */
-    static const uint16_t MAX_FRAME_LEN = HEADER_LEN + MAX_DATA_LEN;
-
-    /** Data container of the Frame Fields */
-    typedef union _Frame
-    {
-        struct _Fields
-        {
-            /** Header */
-            union _Header
-            {
-                struct _HeaderFields
-                {
-
-                    /** Channel ID */
-                    uint8_t m_channel;
-
-                    /** Frame Checksum */
-                    uint8_t m_checksum;
-
-                } __attribute__((packed)) headerFields;
-
-                /** Raw Header Data*/
-                uint8_t rawHeader[HEADER_LEN];
-
-            } __attribute__((packed)) header;
-
-            /** Payload */
-            struct _Payload
-            {
-                /** Data of the Frame */
-                uint8_t m_data[MAX_DATA_LEN];
-
-            } __attribute__((packed)) payload;
-
-        } __attribute__((packed)) fields;
-
-        /** Raw Frame Data */
-        uint8_t raw[MAX_FRAME_LEN] = {0};
-
-    } __attribute__((packed)) Frame;
-
-    /**
-     * Enumeration of Commands of Control Channel.
-     */
-    enum COMMANDS : uint8_t
-    {
-        SYNC = 0x00, /**< SYNC Command */
-        SYNC_RSP,    /**< SYNC Response */
-        SCRB,        /**< Subscribe Command */
-        SCRB_RSP     /**< Subscribe Response */
-    };
-
     /**
      *  Array of Data Channels.
      */
