@@ -58,6 +58,18 @@ SOFTWARE.
 /** Total Frame Length in Bytes */
 #define MAX_FRAME_LEN (HEADER_LEN + MAX_DATA_LEN)
 
+/** Number of Control Channel. */
+#define CONTROL_CHANNEL_NUMBER (0U)
+
+/** DLC of Heartbeat Command. */
+#define HEARTBEAT_PAYLOAD_LENGTH (5U)
+
+/** Period of Heartbeat when Synced. */
+#define HEATBEAT_PERIOD_SYNCED (5000U)
+
+/** Period of Heartbeat when Unsynced */
+#define HEATBEAT_PERIOD_UNSYNCED (1000U)
+
 /******************************************************************************
  * Types and Classes
  *****************************************************************************/

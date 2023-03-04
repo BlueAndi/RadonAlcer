@@ -51,11 +51,6 @@
  * Macros
  *****************************************************************************/
 
-#define CONTROL_CHANNEL_NUMBER   (0)    /**< Number of Control Channel */
-#define HEARTBEAT_PAYLOAD_LENGTH (5)    /**< DLC of Heartbeat Command */
-#define HEATBEAT_PERIOD_SYNCED   (5000) /**< Period of Heartbeat when Synced */
-#define HEATBEAT_PERIOD_UNSYNCED (1000) /**< Period of Heartbeat when Unsynced */
-
 /******************************************************************************
  * Types and Classes
  *****************************************************************************/
