@@ -72,7 +72,7 @@ public:
      * Channel Notification Prototype Callback.
      * Provides the received data in the respective channel to the application.
      */
-    typedef void (* ChannelCallback)(uint8_t* rcvData, uint8_t length);
+    typedef void (* ChannelCallback)(uint8_t* rcvData);
 
     /**
      * Construct the YAP Server.
@@ -202,41 +202,39 @@ private:
     /**
      * Callback for the Control Channel
      */
-    void callbackControlChannel(uint8_t* rcvData, uint8_t length)
+    void callbackControlChannel(uint8_t* rcvData)
     {
-        if (0U != length)
+
+        uint8_t cmdByte = rcvData[0];
+
+        switch (cmdByte)
         {
-            uint8_t cmdByte = rcvData[0];
+        case COMMANDS::SYNC_RSP:
+        {
+            uint32_t rcvTimestamp = ((uint32_t)rcvData[1] << 24) |
+                                    ((uint32_t)rcvData[2] << 16) |
+                                    ((uint32_t)rcvData[3] << 8)  |
+                                    ((uint32_t)rcvData[4]);
 
-            switch (cmdByte)
+            // Check Timestamp with m_lastSyncCommand
+            if (0U == (rcvTimestamp - m_lastSyncCommand))
             {
-            case COMMANDS::SYNC_RSP:
-            {
-                uint32_t rcvTimestamp = ((uint32_t) rcvData[1] << 24) |
-                                        ((uint32_t) rcvData[2] << 16) |
-                                        ((uint32_t) rcvData[3] << 8) |
-                                        ((uint32_t) rcvData[4]);
-
-                // Check Timestamp with m_lastSyncCommand
-                if (0U == (rcvTimestamp - m_lastSyncCommand))
-                {
-                    m_lastSyncResponse = m_lastSyncCommand;
-                    m_isSynced = true;
-                }
-
-                break;
+                m_lastSyncResponse = m_lastSyncCommand;
+                m_isSynced         = true;
             }
 
-            case COMMANDS::SCRB:
-            {
-                break;
-            }
+            break;
+        }
 
-            default:
-            {
-                break;
-            }
-            }
+        case COMMANDS::SCRB:
+        {
+            break;
+        }
+
+        default:
+        {
+            break;
+        }
         }
     }
 
@@ -256,12 +254,12 @@ private:
         // Determine which callback to call, if any.
         if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.m_channel)
         {
-            callbackControlChannel(rcvFrame.fields.payload.m_data, rcvFrame.fields.header.m_dlc);
+            callbackControlChannel(rcvFrame.fields.payload.m_data);
         }
         else if (nullptr != m_dataChannels[rcvFrame.fields.header.m_channel])
         {
             // Callback
-            m_dataChannels[rcvFrame.fields.header.m_channel]->m_callback(rcvFrame.fields.payload.m_data, rcvFrame.fields.header.m_dlc);
+            m_dataChannels[rcvFrame.fields.header.m_channel]->m_callback(rcvFrame.fields.payload.m_data);
         }
     }
 
