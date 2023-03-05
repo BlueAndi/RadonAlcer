@@ -65,12 +65,14 @@ class YAPServer
 public:
     /**
      * Construct the YAP Server.
+     * @param[in] controlCallback Callback of control channel.
      */
-    YAPServer() : m_dataChannels{nullptr},
+    YAPServer(ChannelCallback controlCallback) : m_dataChannels{nullptr},
                   m_isSynced(false),
                   m_lastSyncCommand(0U),
                   m_lastSyncResponse(0U)
     {
+        createChannel("CONTROL", HEARTBEAT_PAYLOAD_LENGTH, controlCallback);
     }
 
     /**
@@ -119,7 +121,7 @@ public:
     {
         uint8_t itr;
 
-        for (itr = 1; itr < maxChannels; itr++)
+        for (itr = 0; itr < maxChannels; itr++)
         {
             if (nullptr == m_dataChannels[itr])
             {
@@ -163,7 +165,6 @@ public:
         Serial.println("--------------------------");
     }
 
-private:
     /**
      * Callback for the Control Channel
      */
@@ -203,6 +204,7 @@ private:
         }
     }
 
+private:
     /**
      * Receive and process RX Data.
      */

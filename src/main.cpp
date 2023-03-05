@@ -57,6 +57,8 @@
  * Prototypes
  *****************************************************************************/
 
+static void controlCallback(const uint8_t* rcvData);
+
 /******************************************************************************
  * Variables
  *****************************************************************************/
@@ -68,7 +70,7 @@ static StateMachine gSystemStateMachine;
 static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
 
 /** Instance of YAP Server with 10 maximum Channels */
-static YAPServer<10> gYAPServer;
+static YAPServer<10> gYAPServer(controlCallback);
 
 /******************************************************************************
  * External functions
@@ -110,3 +112,8 @@ void loop() // cppcheck-suppress unusedFunction
 /******************************************************************************
  * Local functions
  *****************************************************************************/
+
+static void controlCallback(const uint8_t* rcvData)
+{
+    gYAPServer.callbackControlChannel(rcvData);
+}
