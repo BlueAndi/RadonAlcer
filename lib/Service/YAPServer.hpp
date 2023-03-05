@@ -107,6 +107,32 @@ public:
         }
     }
 
+    /**
+     * Debug Function. Print all channel info.
+     */
+    void printChannels()
+    {
+        for (uint8_t i = 0; i < maxChannels; i++)
+        {
+            if (nullptr == m_dataChannels[i])
+            {
+                Serial.print("Channel ");
+                Serial.print(i);
+                Serial.println(": Nullptr");
+            }
+            else
+            {
+                Serial.print("Channel ");
+                Serial.print(i);
+                Serial.print(": ");
+                Serial.print(m_dataChannels[i]->m_name);
+                Serial.print(" --- DLC: ");
+                Serial.println(m_dataChannels[i]->m_dlc);
+            }
+        }
+        Serial.println("--------------------------");
+    }
+
 private:
     /**
      * Callback for the Control Channel
