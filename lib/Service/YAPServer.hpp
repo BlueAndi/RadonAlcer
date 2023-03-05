@@ -203,7 +203,7 @@ private:
         if ((currentTimestamp - m_lastSyncCommand) >= heartbeatPeriod)
         {
             // Timeout
-            if (0U != (m_lastSyncCommand - m_lastSyncResponse))
+            if (m_lastSyncCommand != m_lastSyncResponse)
             {
                 m_isSynced = false;
             }
