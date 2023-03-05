@@ -70,6 +70,8 @@ SOFTWARE.
 /** Period of Heartbeat when Unsynced */
 #define HEATBEAT_PERIOD_UNSYNCED (1000U)
 
+/** Max length of channel name */
+#define CHANNEL_NAME_MAX_LEN (CONTROL_CHANNEL_PAYLOAD_LENGTH - 1)
 /******************************************************************************
  * Types and Classes
  *****************************************************************************/

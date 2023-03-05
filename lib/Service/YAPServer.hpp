@@ -171,7 +171,6 @@ public:
      */
     void callbackControlChannel(const uint8_t* rcvData)
     {
-
         uint8_t cmdByte = rcvData[0];
 
         switch (cmdByte)
@@ -195,6 +194,23 @@ public:
 
         case COMMANDS::SCRB:
         {
+            char channelName[CHANNEL_NAME_MAX_LEN + 1];
+            memcpy(channelName, &rcvData[1], CHANNEL_NAME_MAX_LEN);
+            channelName[CHANNEL_NAME_MAX_LEN] = '\0';
+
+            uint8_t itr;
+
+            for (itr = 0; itr < maxChannels; itr++)
+            {
+                if (0U == strncmp(channelName, m_dataChannels[itr]->m_name, CHANNEL_NAME_MAX_LEN))
+                {
+                    // Channel name found. Send SRCB_RSP
+                    uint8_t buf[CONTROL_CHANNEL_PAYLOAD_LENGTH] = {COMMANDS::SCRB_RSP, itr, m_dataChannels[itr]->m_dlc};
+                    send(CONTROL_CHANNEL_NUMBER, buf, CONTROL_CHANNEL_PAYLOAD_LENGTH);
+                    break;
+                }
+            }
+
             break;
         }
 
