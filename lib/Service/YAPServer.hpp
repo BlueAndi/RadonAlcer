@@ -220,13 +220,16 @@ private:
             // Determine which callback to call, if any.
             if (nullptr != m_dataChannels[rcvFrame.fields.header.headerFields.m_channel])
             {
-                // Read Payload
-                Serial.readBytes(rcvFrame.fields.payload.m_data, 
-                m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc);
+                uint8_t payloadLength = m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc;
 
-                // Callback
-                m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]       
-                                ->m_callback(rcvFrame.fields.payload.m_data);
+                // Read Payload
+                Serial.readBytes(rcvFrame.fields.payload.m_data, payloadLength);
+
+                if (isFrameValid(rcvFrame, payloadLength))
+                {
+                    // Callback
+                    m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_callback(rcvFrame.fields.payload.m_data);
+                }
             }
         }
     }
