@@ -62,7 +62,7 @@ SOFTWARE.
 #define CONTROL_CHANNEL_NUMBER (0U)
 
 /** DLC of Heartbeat Command. */
-#define HEARTBEAT_PAYLOAD_LENGTH (5U)
+#define CONTROL_CHANNEL_PAYLOAD_LENGTH (11U)
 
 /** Period of Heartbeat when Synced. */
 #define HEATBEAT_PERIOD_SYNCED (5000U)

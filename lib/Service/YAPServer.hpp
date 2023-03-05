@@ -72,7 +72,7 @@ public:
                   m_lastSyncCommand(0U),
                   m_lastSyncResponse(0U)
     {
-        createChannel("CONTROL", HEARTBEAT_PAYLOAD_LENGTH, controlCallback);
+        createChannel("CONTROL", CONTROL_CHANNEL_PAYLOAD_LENGTH, controlCallback);
     }
 
     /**
@@ -265,9 +265,9 @@ private:
             uint8_t lowMSB = ((lowBytes & 0xFF00) >> 8U);
             uint8_t lowLSB = (lowBytes & 0x00FF);
 
-            uint8_t buf[HEARTBEAT_PAYLOAD_LENGTH] = {COMMANDS::SYNC, hiMSB, hiLSB, lowMSB, lowLSB};
+            uint8_t buf[CONTROL_CHANNEL_PAYLOAD_LENGTH] = {COMMANDS::SYNC, hiMSB, hiLSB, lowMSB, lowLSB};
 
-            send(CONTROL_CHANNEL_NUMBER, buf, HEARTBEAT_PAYLOAD_LENGTH);
+            send(CONTROL_CHANNEL_NUMBER, buf, CONTROL_CHANNEL_PAYLOAD_LENGTH);
             m_lastSyncCommand = currentTimestamp;
         }
     }
