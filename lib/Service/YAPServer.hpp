@@ -108,6 +108,36 @@ public:
     }
 
     /**
+     * Creates a new channel on the server.
+     * @param[in] channelName Name of the channel.
+     * It will not be checked if the name already exists.
+     * @param[in] dlc Length of the payload of this channel.
+     * @param[in] cb Callback for data incoming to this channel.
+     * @returns The channel number if succesfully created, or 0 if not able to create new channel.
+     */
+    uint8_t createChannel(const char* channelName, uint8_t dlc, ChannelCallback cb)
+    {
+        uint8_t itr;
+
+        for (itr = 1; itr < maxChannels; itr++)
+        {
+            if (nullptr == m_dataChannels[itr])
+            {
+                m_dataChannels[itr] = new Channel(channelName, itr, dlc, cb);
+
+                if (nullptr == m_dataChannels[itr])
+                {
+                    itr = 0U;
+                }
+
+                break;
+            }
+        }
+
+        return itr;
+    }
+
+    /**
      * Debug Function. Print all channel info.
      */
     void printChannels()
