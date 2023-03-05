@@ -167,6 +167,7 @@ public:
 
     /**
      * Callback for the Control Channel
+     * @param[in] rcvData Payload of received frame.
      */
     void callbackControlChannel(const uint8_t* rcvData)
     {
