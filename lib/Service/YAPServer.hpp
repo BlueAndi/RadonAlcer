@@ -183,7 +183,7 @@ public:
                                     ((uint32_t)rcvData[4]);
 
             // Check Timestamp with m_lastSyncCommand
-            if (0U == (rcvTimestamp - m_lastSyncCommand))
+            if (rcvTimestamp == m_lastSyncCommand)
             {
                 m_lastSyncResponse = m_lastSyncCommand;
                 m_isSynced         = true;
