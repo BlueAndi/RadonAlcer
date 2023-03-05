@@ -166,6 +166,16 @@ public:
         printf("\n");
     }
 
+    int available()
+    {
+        return 0;
+    }
+
+    size_t readBytes(uint8_t *buffer, size_t length)
+    {
+        return 0;
+    }
+
 private:
 
 };
