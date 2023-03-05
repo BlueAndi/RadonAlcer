@@ -66,7 +66,10 @@ public:
     /**
      * Construct the YAP Server.
      */
-    YAPServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U)
+    YAPServer() : m_dataChannels{nullptr},
+                  m_isSynced(false),
+                  m_lastSyncCommand(0U),
+                  m_lastSyncResponse(0U)
     {
     }
 
