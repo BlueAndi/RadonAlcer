@@ -210,37 +210,24 @@ private:
      */
     void processRxData()
     {
-        uint8_t payloadLength = 0U;
-
         // Check for received data
-        // TODO: Change rcvData for Serial.read();
-        uint8_t rcvData[MAX_FRAME_LEN] = {0};
-
-
-        // Create Frame and copy header into "rawHeader" field.
-        Frame rcvFrame;
-        memcpy(&rcvFrame.fields.header.rawHeader, rcvData, HEADER_LEN);
-
-        // Determine which callback to call, if any.
-        if(CONTROL_CHANNEL_NUMBER == rcvFrame.fields.header.headerFields.m_channel)
+        if (Serial.available())
         {
-            payloadLength = HEARTBEAT_PAYLOAD_LENGTH;
+            // Create Frame and read header
+            Frame rcvFrame;
+            Serial.readBytes(rcvFrame.fields.header.rawHeader, HEADER_LEN);
 
-            // Copy complete Frame
-            memcpy(&rcvFrame.raw, rcvData, (HEADER_LEN + payloadLength));
+            // Determine which callback to call, if any.
+            if (nullptr != m_dataChannels[rcvFrame.fields.header.headerFields.m_channel])
+            {
+                // Read Payload
+                Serial.readBytes(rcvFrame.fields.payload.m_data, 
+                m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc);
 
-            callbackControlChannel(rcvFrame.fields.payload.m_data);
-        }
-        else if (nullptr != m_dataChannels[rcvFrame.fields.header.headerFields.m_channel])
-        {
-            // Determine how many bytes long the payload is.
-            payloadLength = m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_dlc;
-
-            // Copy complete Frame
-            memcpy(&rcvFrame.raw, rcvData, (HEADER_LEN + payloadLength));
-
-            // Callback
-            m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]->m_callback(rcvFrame.fields.payload.m_data);
+                // Callback
+                m_dataChannels[rcvFrame.fields.header.headerFields.m_channel]       
+                                ->m_callback(rcvFrame.fields.payload.m_data);
+            }
         }
     }
 
