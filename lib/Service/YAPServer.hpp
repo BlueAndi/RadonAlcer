@@ -167,7 +167,7 @@ private:
     /**
      * Callback for the Control Channel
      */
-    void callbackControlChannel(uint8_t* rcvData)
+    void callbackControlChannel(const uint8_t* rcvData)
     {
 
         uint8_t cmdByte = rcvData[0];
