@@ -50,7 +50,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <Print.h>
 
 /******************************************************************************
  * Macros
@@ -66,7 +65,7 @@
  * Types and Classes
  *****************************************************************************/
 
-class Serial_ : public Print
+class Serial_
 {
 public:
 

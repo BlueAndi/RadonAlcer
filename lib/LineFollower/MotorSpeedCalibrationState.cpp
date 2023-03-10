@@ -39,6 +39,7 @@
 #include <StateMachine.h>
 #include "LineSensorsCalibrationState.h"
 #include "ErrorState.h"
+#include <Logging.h>
 
 /******************************************************************************
  * Compiler Switches
@@ -249,11 +250,14 @@ void MotorSpeedCalibrationState::phase4Finished(StateMachine& sm)
     }
     else
     {
-        Serial.print("Calibrated max. speed: ");
-        Serial.print(maxSpeed);
-        Serial.print(" steps/s (= ");
-        Serial.print(maxSpeed / RobotConstants::ENCODER_STEPS_PER_MM);
-        Serial.println(" mm/s)");
+        char msg[Logging::MESSAGE_BUFFER_SIZE] = "";
+
+        snprintf(msg, Logging::MESSAGE_BUFFER_SIZE,
+                 "Calibrated max. speed: %d steps/s (= %d mm/s)",
+                 maxSpeed,
+                 (maxSpeed / RobotConstants::ENCODER_STEPS_PER_MM));
+
+        LOG_DEBUG("SpeedCal", msg);
 
         sm.setState(&LineSensorsCalibrationState::getInstance());
     }

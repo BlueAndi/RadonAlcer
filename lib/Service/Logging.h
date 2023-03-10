@@ -56,16 +56,10 @@
 #define LOG_DEBUG_ENABLE (0)
 #endif /* LOG_DEBUG_ENABLE */
 
-#ifndef LOG_TRACE_ENABLE
-#define LOG_TRACE_ENABLE (0)
-#endif /* LOG_TRACE_ENABLE */
-
 /******************************************************************************
  * Includes
  *****************************************************************************/
 #include <Arduino.h>
-#include <stdarg.h>
-#include <stdint.h>
 
 /******************************************************************************
  * Macros
@@ -75,295 +69,95 @@
 
 #define LOG_FATAL(...)
 
-#else/* (0 == LOG_FATAL_ENABLE) */
+#else /* (0 == LOG_FATAL_ENABLE) */
 
-    /** Log fatal error message. */
-    #define LOG_FATAL(...)      do{ Logging::getInstance().processLogMessage(__FILE__, __LINE__, Logging::LOG_LEVEL_FATAL, __VA_ARGS__); }while(0)
+/** Log fatal error message. */
+#define LOG_FATAL(filename, ...) Logging::print(filename, __LINE__, Logging::LOG_LEVEL_ERROR, __VA_ARGS__)
 
-#endif  /* (0 == LOG_FATAL_ENABLE) */
+#endif /* (0 == LOG_FATAL_ENABLE) */
 
 #if (0 == LOG_ERROR_ENABLE)
 
-    #define LOG_ERROR(...)
+#define LOG_ERROR(filename, ...)
 
-#else/* (0 == LOG_ERROR_ENABLE) */
+#else /* (0 == LOG_ERROR_ENABLE) */
 
-    /** Log error message. */
-    #define LOG_ERROR(...)      do{ Logging::getInstance().processLogMessage(__FILE__, __LINE__, Logging::LOG_LEVEL_ERROR, __VA_ARGS__); }while(0)
+/** Log error message. */
+#define LOG_ERROR(filename, ...) Logging::print(filename, __LINE__, Logging::LOG_LEVEL_ERROR, __VA_ARGS__)
 
-#endif  /* (0 == LOG_ERROR_ENABLE) */
+#endif /* (0 == LOG_ERROR_ENABLE) */
 
 #if (0 == LOG_WARNING_ENABLE)
 
-    #define LOG_WARNING(...)
+#define LOG_WARNING(filename, ...)
 
-#else/* (0 == LOG_WARNING_ENABLE) */
+#else /* (0 == LOG_WARNING_ENABLE) */
 
-    /** Log warning message. */
-    #define LOG_WARNING(...)    do{ Logging::getInstance().processLogMessage(__FILE__, __LINE__, Logging::LOG_LEVEL_WARNING, __VA_ARGS__); }while(0)
+/** Log warning message. */
+#define LOG_WARNING(filename, ...) Logging::print(filename, __LINE__, Logging::LOG_LEVEL_WARNING, __VA_ARGS__)
 
-#endif  /* (0 == LOG_WARNING_ENABLE) */
+#endif /* (0 == LOG_WARNING_ENABLE) */
 
 #if (0 == LOG_INFO_ENABLE)
 
-    #define LOG_INFO(...)
+#define LOG_INFO(filename, ...)
 
-#else/* (0 == LOG_INFO_ENABLE) */
+#else /* (0 == LOG_INFO_ENABLE) */
 
-    /** Log info error message. */
-    #define LOG_INFO(...)       do{ Logging::getInstance().processLogMessage(__FILE__, __LINE__, Logging::LOG_LEVEL_INFO, __VA_ARGS__); }while(0)
+/** Log info error message. */
+#define LOG_INFO(filename, ...) Logging::print(filename, __LINE__, Logging::LOG_LEVEL_INFO, __VA_ARGS__)
 
-#endif  /* (0 == LOG_INFO_ENABLE) */
+#endif /* (0 == LOG_INFO_ENABLE) */
 
 #if (0 == LOG_DEBUG_ENABLE)
 
-    #define LOG_DEBUG(...)
+#define LOG_DEBUG(filename, ...)
 
-#else  /* (0 == LOG_DEBUG_ENABLE) */
+#else /* (0 == LOG_DEBUG_ENABLE) */
 
-    /** Log debug message. */
-    #define LOG_DEBUG(...)      do{ Logging::getInstance().processLogMessage(__FILE__, __LINE__, Logging::LOG_LEVEL_DEBUG, __VA_ARGS__); }while(0)
+/** Log debug message. */
+#define LOG_DEBUG(filename, ...) Logging::print(filename, __LINE__, Logging::LOG_LEVEL_DEBUG, __VA_ARGS__)
 
-#endif  /* (0 == LOG_DEBUG_ENABLE) */
-
-#if (0 == LOG_TRACE_ENABLE)
-
-    #define LOG_TRACE(...)
-
-#else/* (0 == LOG_TRACE_ENABLE) */
-
-    /** Log trace message. */
-    #define LOG_TRACE(...)      do{ Logging::getInstance().processLogMessage(__FILE__, __LINE__, Logging::LOG_LEVEL_TRACE, __VA_ARGS__); }while(0)
-
-#endif  /* (0 == LOG_TRACE_ENABLE) */
+#endif /* (0 == LOG_DEBUG_ENABLE) */
 
 /******************************************************************************
  * Types and Classes
  *****************************************************************************/
 
-/* Forward declaration */
-class LogSink;
-
 /**
  * Logging class for log messages depending on the previously set log level.
  */
-class Logging
+namespace Logging
 {
-public:
-
     /**
      * Enumeration to distinguish between different levels of severity.
      */
     enum LogLevel
     {
-        LOG_LEVEL_FATAL = 0,    /**< Any error that is forcing a shutdown of service or application, because there is no way out. */
-        LOG_LEVEL_ERROR,        /**< Any error that is fatal for the operating, but not for the service or application. */
-        LOG_LEVEL_WARNING,      /**< Anything that shows the user to pay attention, but can be automatically be recovered. */
-        LOG_LEVEL_INFO,         /**< General useful information for the user. */
-        LOG_LEVEL_DEBUG,        /**< A diagnostic message helpful for the developer. */
-        LOG_LEVEL_TRACE         /**< Only used for tracing code. */
-    };
-
-    /**
-     * A single log message.
-     */
-    struct Msg
-    {
-        uint32_t            timestamp;  /**< Timestamp in ms */
-        Logging::LogLevel   level;      /**< Log level */
-        const char*         filename;   /**< Name of the file where this message is thrown. */
-        int                 line;       /**< Line number in the file, where this message is thrown. */
-        const char*         str;        /**< Message text */
-
-        /**
-         * Initializes a empty message.
-         */
-        Msg() :
-            timestamp(0U),
-            level(LOG_LEVEL_INFO),
-            filename(nullptr),
-            line(0),
-            str(nullptr)
-        {
-        }
+        LOG_LEVEL_FATAL = 0, /**< Any error that is forcing a shutdown of service or application, because there is no way out. */
+        LOG_LEVEL_ERROR,     /**< Any error that is fatal for the operating, but not for the service or application. */
+        LOG_LEVEL_WARNING,   /**< Anything that shows the user to pay attention, but can be automatically be recovered. */
+        LOG_LEVEL_INFO,      /**< General useful information for the user. */
+        LOG_LEVEL_DEBUG,     /**< A diagnostic message helpful for the developer. */
     };
 
     /** The maximum size of the logMessage buffer to get the variable arguments. */
-    static const uint16_t MESSAGE_BUFFER_SIZE   = 80U;
+    const uint16_t MESSAGE_BUFFER_SIZE   = 80U;
 
     /**
-     * Get the Logging instance.
+     * Print log message.
      *
-     * @return Logging instance.
+     * @param[in] filename      The name of the file, where the log message is located.
+     * @param[in] lineNumber    The line number in the file, where the log message is located.
+     * @param[in] level         The severity level.
+     * @param[in] format        The format with the variable argument list.
      */
-    static Logging& getInstance()
-    {
-        static Logging instance; /* singleton idiom to force initialization in the first usage. */
+    void print(const char* filename, int lineNumber, LogLevel level, const char* format, ...);
 
-        return instance;
-    }
-
-    /**
-     * Register a log sink.
-     *
-     * @param[in] sink  Log sink
-     *
-     * @return If successful registered it will return true otherwise false.
-     */
-    bool registerSink(LogSink* sink);
-
-    /**
-     * Unregister a log sink.
-     *
-     * @param[in] sink  Log sink
-     */
-    void unregisterSink(LogSink* sink);
-
-    /**
-     * Select log sink.
-     *
-     * @param[in] name Log sink name
-     *
-     * @return If sink is selected, it will return true otherwise false.
-     */
-    bool selectSink(const char* name);
-
-    /**
-     * Get selected sink.
-     *
-     * @return Selected sink
-     */
-    LogSink* getSelectedSink();
-
-    /**
-     * Set the logLevel.
-     *
-     * @param[in] logLevel The new logLevel.
-    */
-    void setLogLevel(const LogLevel logLevel);
-
-    /**
-     * Get the current logLevel.
-     *
-     * @return The current logLevel.
-    */
-    LogLevel getLogLevel() const;
-
-    /**
-     * Write a formatable logMessage to the current output,
-     * if the severity is >= the current logLevel, otherwise the logMessage is discarded.
-     *
-     * @param[in] file              Name of the file
-     * @param[in] line              Line number in the file
-     * @param[in] messageLogLevel   The logLevel.
-     * @param[in] format            The format of the variable arguments.
-     * @param[in] ...               The variable arguments.
-     *
-     * @note The max. size of a logMessage is restricted by MESSAGE_BUFFER_SIZE.
-     */
-    void processLogMessage(const char* file, int line, const LogLevel messageLogLevel, const char* format, ...);
-
-    /** Number of supported log sinks. */
-    static const uint8_t MAX_SINKS = 2U;
-
-private:
-
-    /** The current log level. */
-    LogLevel    m_currentLogLevel;
-
-    /** List of log sinks */
-    LogSink*    m_sinks[MAX_SINKS];
-
-    /** Active sink */
-    LogSink*    m_selectedSink;
-
-    /**
-     * Checks wether the given severity of a logMessage is enabled to be printed.
-     *
-     * @param[in] logLevel The logLevel that has to be checked.
-     *
-     * @return If the severity is enabled, it will return true otherwise false.
-    */
-    bool isSeverityEnabled(LogLevel logLevel) const;
-
-    /**
-     * Extracts the basename of a file from a given path.
-     *
-     * @param[in] path The path as retrieved from __FILE__.
-     *
-     * @return The basename.
-    */
-    const char* getBaseNameFromPath(const char* path) const;
-
-    /**
-     * Construct Logging.
-     */
-    Logging() :
-        m_currentLogLevel(LOG_LEVEL_INFO),
-        m_sinks(),
-        m_selectedSink(nullptr)
-    {
-        uint8_t index = 0U;
-
-        for(index = 0U; index < MAX_SINKS; ++index)
-        {
-            m_sinks[index] = nullptr;
-        }
-    }
-
-    /**
-     * Destroys Logging.
-     */
-    ~Logging()
-    {
-
-    }
-
-    /* Prevent copying */
-    Logging(const Logging&);
-    Logging&operator=(const Logging&);
-};
-
-/**
- * Logging sink interface.
- */
-class LogSink
-{
-public:
-
-    /**
-     * Constructs the log sink.
-     */
-    LogSink()
-    {
-    }
-
-    /**
-     * Destroys the log sink.
-     */
-    virtual ~LogSink()
-    {
-    }
-
-    /**
-     * Get sink name.
-     *
-     * @return Name of the sink.
-     */
-    virtual const char* getName() const = 0;
-
-    /**
-     * Send a log message to this sink.
-     *
-     * @param[in] msg   Log message
-     */
-    virtual void send(const Logging::Msg& msg) = 0;
-
-private:
-};
+}; // namespace Logging
 
 /******************************************************************************
  * Functions
  *****************************************************************************/
 
-#endif  /* __LOGGING_H__ */
+#endif /* __LOGGING_H__ */

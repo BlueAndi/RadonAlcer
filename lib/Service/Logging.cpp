@@ -33,6 +33,8 @@
  * Includes
  *****************************************************************************/
 #include "Logging.h"
+#include <stdarg.h>
+#include <stdint.h>
 
 /******************************************************************************
  * Compiler Switches
@@ -50,6 +52,8 @@
  * Prototypes
  *****************************************************************************/
 
+static void printHead(const char* filename, int lineNumber, Logging::LogLevel level);
+
 /******************************************************************************
  * Local Variables
  *****************************************************************************/
@@ -57,130 +61,6 @@
 /******************************************************************************
  * Public Methods
  *****************************************************************************/
-
-bool Logging::registerSink(LogSink* sink)
-{
-    bool status = false;
-
-    if (nullptr != sink)
-    {
-        uint8_t index = 0U;
-
-        while((MAX_SINKS > index) && (false == status))
-        {
-            if (nullptr == m_sinks[index])
-            {
-                m_sinks[index] = sink;
-                status = true;
-            }
-            else
-            {
-                ++index;
-            }
-        }
-    }
-
-    return status;
-}
-
-void Logging::unregisterSink(LogSink* sink)
-{
-    uint8_t index = 0U;
-
-    while((MAX_SINKS > index) && (nullptr != sink))
-    {
-        if (sink == m_sinks[index])
-        {
-            m_sinks[index] = nullptr;
-
-            if (sink == m_selectedSink)
-            {
-                m_selectedSink = nullptr;
-            }
-
-            sink = nullptr;
-        }
-        else
-        {
-            ++index;
-        }
-    }
-}
-
-bool Logging::selectSink(const char* name)
-{
-    bool    status  = false;
-    uint8_t index   = 0U;
-
-    while((MAX_SINKS > index) && (false == status))
-    {
-        if (0U == strcmp(m_sinks[index]->getName(), name))
-        {
-            m_selectedSink = m_sinks[index];
-            status = true;
-        }
-        else
-        {
-            ++index;
-        }
-    }
-
-    return status;
-}
-
-LogSink* Logging::getSelectedSink()
-{
-    return m_selectedSink;
-}
-
-void Logging::setLogLevel(const LogLevel logLevel)
-{
-    m_currentLogLevel = logLevel;
-}
-
-Logging::LogLevel Logging::getLogLevel() const
-{
-    return m_currentLogLevel;
-}
-
-void Logging::processLogMessage(const char* file, int line, const Logging::LogLevel messageLogLevel, const char* format, ...)
-{
-    if ((true == isSeverityEnabled(messageLogLevel)) &&
-        (nullptr != m_selectedSink))
-    {
-        char            buffer[MESSAGE_BUFFER_SIZE];
-        int             written             = 0;
-        const char*     STR_CUT_OFF_SEQ     = "...";
-        const uint16_t  STR_CUT_OFF_SEQ_LEN = strlen(STR_CUT_OFF_SEQ);
-        va_list         args;
-        Msg             msg;
-
-        va_start(args, format);
-        written = vsnprintf(buffer, MESSAGE_BUFFER_SIZE - STR_CUT_OFF_SEQ_LEN, format, args); /* NOLINT(clang-analyzer-valist.Uninitialized) */
-        va_end(args);
-
-        /* If buffer was too small or any other error happended, it shall be shown in the
-         * output string message with the STR_CUT_OFF_SEQ.
-         */
-        if ((0 > written) ||
-            ((MESSAGE_BUFFER_SIZE - STR_CUT_OFF_SEQ_LEN) <= written))
-        {
-            strncat(buffer, STR_CUT_OFF_SEQ, MESSAGE_BUFFER_SIZE - strlen(buffer) - 1U);
-        }
-
-        msg.timestamp   = millis();
-        msg.level       = messageLogLevel;
-        msg.filename    = getBaseNameFromPath(file);
-        msg.line        = line;
-        msg.str         = buffer;
-
-        m_selectedSink->send(msg);
-    }
-    else
-    {
-        /* LogMessage is discarded! */
-    }
-}
 
 /******************************************************************************
  * Protected Methods
@@ -190,35 +70,69 @@ void Logging::processLogMessage(const char* file, int line, const Logging::LogLe
  * Private Methods
  *****************************************************************************/
 
-bool Logging::isSeverityEnabled(Logging::LogLevel logLevel) const
-{
-    return (logLevel <= m_currentLogLevel);
-}
-
-const char* Logging::getBaseNameFromPath(const char* path) const
-{
-    const char* basename = path;
-    const char* p        = path;
-
-    if (nullptr != path)
-    {
-        for (p = path; *p != '\0'; p++)
-        {
-            if ((*p == '\\') || (*p == '/'))
-            {
-                basename = p + 1;
-            }
-        }
-    }
-
-    return basename;
-}
-
 /******************************************************************************
  * External Functions
  *****************************************************************************/
 
+void Logging::print(const char* filename, int lineNumber, Logging::LogLevel level, const char* format, ...)
+{
+    const size_t MESSAGE_BUFFER_SIZE = 512;
+    char         buffer[MESSAGE_BUFFER_SIZE];
+    va_list      args;
+
+    printHead(filename, lineNumber, level);
+
+    va_start(args, format);
+    vsnprintf(buffer, MESSAGE_BUFFER_SIZE, format, args);
+    va_end(args);
+
+    Serial.println(buffer);
+}
 
 /******************************************************************************
  * Local Functions
  *****************************************************************************/
+
+static void printHead(const char* filename, int lineNumber, Logging::LogLevel level)
+{
+    uint8_t     HEAD_BUFFER_SIZE         = 80U;
+    char        buffer[HEAD_BUFFER_SIZE] = {0};
+    uint16_t    written                  = 0;
+    const char* levelStr                 = "U";
+
+    switch (level)
+    {
+    case Logging::LOG_LEVEL_FATAL:
+        levelStr = "F";
+        break;
+
+    case Logging::LOG_LEVEL_ERROR:
+        levelStr = "E";
+        break;
+    
+    case Logging::LOG_LEVEL_WARNING:
+        levelStr = "W";
+        break;
+
+    case Logging::LOG_LEVEL_INFO:
+        levelStr = "I";
+        break;
+
+    case Logging::LOG_LEVEL_DEBUG:
+        levelStr = "D";
+        break;
+
+    default:
+        break;
+    }
+
+    written = snprintf(buffer,
+                       HEAD_BUFFER_SIZE,
+                       "%6lu [%1s] %10s:%04u |   ",
+                       millis(),
+                       levelStr,
+                       filename,
+                       lineNumber);
+    
+    Serial.print(buffer);
+}
