@@ -61,13 +61,9 @@
  * Prototypes
  *****************************************************************************/
 
-static void controlCallback(const uint8_t* rcvData);
-
 /******************************************************************************
  * Local Variables
  *****************************************************************************/
-
-static YAPServer gYAPServer(controlCallback);
 
 /******************************************************************************
  * Public Methods
@@ -84,7 +80,7 @@ void App::loop()
 {
     Mileage::getInstance().process();
     Speedometer::getInstance().process();
-    gYAPServer.process();
+    YAPServer::getInstance().process();
 
     if (true == m_controlInterval.isTimeout())
     {
@@ -121,7 +117,3 @@ void App::loop()
 /******************************************************************************
  * Local Functions
  *****************************************************************************/
-static void controlCallback(const uint8_t* rcvData)
-{
-    gYAPServer.callbackControlChannel(rcvData);
-}

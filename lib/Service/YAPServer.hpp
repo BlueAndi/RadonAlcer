@@ -65,23 +65,17 @@
 class YAPServer
 {
 public:
-    /**
-     * Construct the YAP Server.
-     * @param[in] controlCallback Callback of control channel.
-     */
-    YAPServer(ChannelCallback controlCallback) : m_dataChannels{nullptr},
-                  m_isSynced(false),
-                  m_lastSyncCommand(0U),
-                  m_lastSyncResponse(0U)
-    {
-        createChannel("CONTROL", CONTROL_CHANNEL_PAYLOAD_LENGTH, controlCallback);
-    }
 
     /**
-     * Destroy the YAP Server.
+     * Get YAPServer instance.
+     *
+     * @return YAPServer instance
      */
-    ~YAPServer()
+    static YAPServer& getInstance()
     {
+        static YAPServer instance; /* idiom */
+
+        return instance;
     }
 
     /**
@@ -358,6 +352,25 @@ private:
     uint32_t m_lastSyncResponse;
 
 private:
+
+    /**
+     * Construct the YAP Server.
+     */
+    YAPServer() : m_dataChannels{nullptr},
+                  m_isSynced(false),
+                  m_lastSyncCommand(0U),
+                  m_lastSyncResponse(0U)
+    {
+    }
+
+    /**
+     * Destroy the YAP Server.
+     */
+    ~YAPServer()
+    {
+    }
+
+    /** Prevent instance copying */
     YAPServer(const YAPServer& avg);
     YAPServer& operator=(const YAPServer& avg);
 };
