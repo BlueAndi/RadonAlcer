@@ -32,13 +32,7 @@
 /******************************************************************************
  * Includes
  *****************************************************************************/
-#include <Arduino.h>
-#include "StateMachine.h"
-#include "StartupState.h"
-#include <Board.h>
-#include <Mileage.h>
-#include <Logging.h>
-#include <LogSinkPrinter.h>
+#include <App.h>
 
 /******************************************************************************
  * Macros
@@ -60,11 +54,8 @@
  * Variables
  *****************************************************************************/
 
-/** The system state machine. */
-static StateMachine gSystemStateMachine;
-
-/** Serial log sink */
-static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
+/** The main application. */
+static App gApplication;
 
 /******************************************************************************
  * External functions
@@ -76,20 +67,7 @@ static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
  */
 void setup() // cppcheck-suppress unusedFunction
 {
-    Board::getInstance().init();
-    Serial.begin(115200);
-
-    /* Register serial log sink and select it per default. */
-    if (true == Logging::getInstance().registerSink(&gLogSinkSerial))
-    {
-        Logging::getInstance().selectSink("Serial");
-    }
-    
-    Logging::getInstance().setLogLevel(CONFIG_LOG_SEVERITY);
-
-    LOG_INFO("Logger Initialized");
-
-    gSystemStateMachine.setState(&StartupState::getInstance());
+    gApplication.setup();
 }
 
 /**
@@ -98,8 +76,7 @@ void setup() // cppcheck-suppress unusedFunction
  */
 void loop() // cppcheck-suppress unusedFunction
 {
-    Mileage::getInstance().process();
-    gSystemStateMachine.process();
+    gApplication.loop();
 }
 
 /******************************************************************************

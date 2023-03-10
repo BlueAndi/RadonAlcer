@@ -81,6 +81,12 @@ namespace RobotConstants
     static const uint32_t   WHEEL_CIRCUMFERENCE     = static_cast<uint32_t>(static_cast<float>(WHEEL_DIAMETER) * PI * 1000.0f);
 
     /**
+     * Wheel base in mm.
+     * Distance between the left wheel center to the right wheel center.
+     */
+    static const uint32_t   WHEEL_BASE              = 90;
+
+    /**
      * Number of encoder steps per mm.
      */
     static const uint32_t   ENCODER_STEPS_PER_MM    = (ENCODER_RESOLUTION * GEAR_RATIO) / WHEEL_CIRCUMFERENCE;

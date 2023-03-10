@@ -8,7 +8,7 @@
   - [Logical View](#logical-view)
     - [Application](#application)
       - [Startup](#startup)
-      - [Calibration](#calibration)
+      - [LineSensorsCalibration](#linesensorscalibration)
       - [Ready](#ready)
       - [Release Track](#release-track)
       - [Driving](#driving)
@@ -50,9 +50,9 @@
 
 ![deployment](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/BlueAndi/RadonAlcer/master/doc/architecture/uml/LogicalView/StartupState.plantuml)
 
-#### Calibration
+#### LineSensorsCalibration
 
-![deployment](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/BlueAndi/RadonAlcer/master/doc/architecture/uml/LogicalView/CalibrationState.plantuml)
+![deployment](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/BlueAndi/RadonAlcer/master/doc/architecture/uml/LogicalView/LineSensorsCalibrationState.plantuml)
 
 #### Ready
 

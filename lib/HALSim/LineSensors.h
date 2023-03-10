@@ -27,7 +27,7 @@
 /**
  * @brief  Line sensors array realization
  * @author Andreas Merkle <web@blue-andi.de>
- * 
+ *
  * @addtogroup HALSim
  *
  * @{
@@ -44,6 +44,7 @@
  * Includes
  *****************************************************************************/
 #include "ILineSensors.h"
+#include "SimTime.h"
 
 #include <webots/Emitter.hpp>
 #include <webots/DistanceSensor.hpp>
@@ -63,21 +64,22 @@ public:
     /**
      * Constructs the line sensors adapter.
      *
-     * @param[in] emitter0  The most left infrared emitter 0
-     * @param[in] emitter1  The infrared emitter 1
-     * @param[in] emitter2  The infrared emitter 2
-     * @param[in] emitter3  The infrared emitter 3
-     * @param[in] emitter4  The most right infrared emitter 4
+     * @param[in] simTime       Simulation time
+     * @param[in] emitter0      The most left infrared emitter 0
+     * @param[in] emitter1      The infrared emitter 1
+     * @param[in] emitter2      The infrared emitter 2
+     * @param[in] emitter3      The infrared emitter 3
+     * @param[in] emitter4      The most right infrared emitter 4
      * @param[in] lightSensor0  The most left light sensor 0
      * @param[in] lightSensor1  The light sensor 1
      * @param[in] lightSensor2  The light sensor 2
      * @param[in] lightSensor3  The light sensor 3
      * @param[in] lightSensor4  The most right light sensor 4
      */
-    LineSensors(webots::Emitter* emitter0, webots::Emitter* emitter1, webots::Emitter* emitter2,
+    LineSensors(const SimTime& simTime, webots::Emitter* emitter0, webots::Emitter* emitter1, webots::Emitter* emitter2,
                 webots::Emitter* emitter3, webots::Emitter* emitter4, webots::DistanceSensor* lightSensor0,
-                webots::DistanceSensor* lightSensor1, webots::DistanceSensor* lightSensor2, webots::DistanceSensor* lightSensor3,
-                webots::DistanceSensor* lightSensor4) :
+                webots::DistanceSensor* lightSensor1, webots::DistanceSensor* lightSensor2,
+                webots::DistanceSensor* lightSensor3, webots::DistanceSensor* lightSensor4) :
         ILineSensors(),
         m_sensorValuesU16(),
         m_emitters{emitter0, emitter1, emitter2, emitter3, emitter4},
@@ -93,6 +95,11 @@ public:
             m_sensorValuesU16[sensorIndex] = 0;
             m_sensorMaxValues[sensorIndex] = 0;
             m_sensorMinValues[sensorIndex] = SENSOR_MAX_VALUE;
+
+            if (nullptr != m_lightSensors[sensorIndex])
+            {
+                m_lightSensors[sensorIndex]->enable(simTime.getTimeStep());
+            }
         }
     }
 
@@ -135,6 +142,8 @@ public:
      *
      * This function assumes a dark line (high values) surrounded by white
      * (low values).
+     * 
+     * @return Estimated position with respect to track.
      */
     int16_t readLine() final;
 
@@ -198,14 +207,14 @@ private:
      */
     static const int16_t SENSOR_MAX_VALUE = 1000;
 
-    uint16_t                m_sensorValuesU16[MAX_SENSORS]; /**< The last value of each sensor as unsigned 16-bit values. */
-    webots::Emitter*        m_emitters[MAX_SENSORS];        /**< The infrared emitters (0: most left) */
-    webots::DistanceSensor* m_lightSensors[MAX_SENSORS];    /**< The light sensors (0: most left) */
-    bool                    m_sensorCalibSuccessfull;       /**< Indicates weather the calibration was successfull or not. */
-    bool                    m_sensorCalibStarted;           /**< Indicates weather the calibration has started or not. */
-    uint8_t                 m_calibErrorInfo;               /**< Indicates which sensor failed the calibration, if the calibration failed. */
-    uint16_t                m_sensorMinValues[MAX_SENSORS]; /**< Stores the minimal calibration values for the sensors. */
-    uint16_t                m_sensorMaxValues[MAX_SENSORS]; /**< Stores the minimal calibration values for the sensors. */
+    uint16_t         m_sensorValuesU16[MAX_SENSORS]; /**< The last value of each sensor as unsigned 16-bit values. */
+    webots::Emitter* m_emitters[MAX_SENSORS];        /**< The infrared emitters (0: most left) */
+    webots::DistanceSensor* m_lightSensors[MAX_SENSORS]; /**< The light sensors (0: most left) */
+    bool                    m_sensorCalibSuccessfull; /**< Indicates weather the calibration was successfull or not. */
+    bool                    m_sensorCalibStarted;     /**< Indicates weather the calibration has started or not. */
+    uint8_t  m_calibErrorInfo; /**< Indicates which sensor failed the calibration, if the calibration failed. */
+    uint16_t m_sensorMinValues[MAX_SENSORS]; /**< Stores the minimal calibration values for the sensors. */
+    uint16_t m_sensorMaxValues[MAX_SENSORS]; /**< Stores the minimal calibration values for the sensors. */
 
     /* Default constructor not allowed. */
     LineSensors();

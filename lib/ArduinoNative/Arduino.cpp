@@ -42,7 +42,7 @@
 
 #include <Board.h>
 #include <webots/Robot.hpp>
-#include <KeyboardPrivate.h>
+#include <Keyboard.h>
 
 #endif
 
@@ -62,6 +62,9 @@
  * Prototypes
  *****************************************************************************/
 
+extern void setup();
+extern void loop();
+
 /******************************************************************************
  * Local Variables
  *****************************************************************************/
@@ -75,16 +78,12 @@ Serial_ Serial;
  * The maximum duration a simulated time step can have.
  * Everything above would cause missbehaviour in the application.
  */
-static const int MAX_TIME_STEP  = 10;
+static const int MAX_TIME_STEP = 10;
 
-/** The milliseconds passed in the simulation since the start. */
-static unsigned long gElapsedTimeSinceReset = 0;
-
-/** The time in milliseconds that is simulated during one simulation step. */
-static int gTimeStep = 0;
-
-/** The simulation robot instance. */
-static webots::Robot* gRobot = nullptr;
+/**
+ * Simulation time handler, used by Arduino functions.
+ */
+static SimTime* gSimTime = nullptr;
 
 #endif
 
@@ -104,16 +103,8 @@ static webots::Robot* gRobot = nullptr;
  * External Functions
  *****************************************************************************/
 
-extern void setup();
-extern void loop();
-
-#ifndef UNIT_TEST
-static int simulationStep();
-#endif
-
 #ifdef UNIT_TEST
 
-/**************************************************************************************************/
 extern int main(int argc, char** argv)
 {
     setup(); /* Prepare test */
@@ -122,7 +113,6 @@ extern int main(int argc, char** argv)
     return 0;
 }
 
-/**************************************************************************************************/
 extern unsigned long millis()
 {
     clock_t now = clock();
@@ -130,7 +120,6 @@ extern unsigned long millis()
     return (now * 1000UL) / CLOCKS_PER_SEC;
 }
 
-/**************************************************************************************************/
 extern void delay(unsigned long ms)
 {
     unsigned long timestamp = millis();
@@ -145,19 +134,13 @@ extern void delay(unsigned long ms)
 
 extern int main(int argc, char** argv)
 {
-    int status = 0;
-    KeyboardPrivate& keyboard = Board::getInstance().getKeyboard();
+    int       status   = 0;
+    Keyboard& keyboard = Board::getInstance().getKeyboard();
+    
+    /* Get simulation time handler. It will be used by millis() and delay(). */
+    gSimTime = &Board::getInstance().getSimTime();
 
-    /* Initialize simulation time step duration. */
-    gRobot = &Board::getInstance().getRobot();
-
-    if (nullptr != gRobot)
-    {
-        gTimeStep = (int)gRobot->getBasicTimeStep();
-    }
-
-    if ((0 == gTimeStep) ||
-        (MAX_TIME_STEP < gTimeStep))
+    if ((0 == gSimTime->getTimeStep()) || (MAX_TIME_STEP < gSimTime->getTimeStep()))
     {
         printf("Simulation time step is too high!\n");
         printf("This would cause missbehaviour in the application.\n");
@@ -175,7 +158,7 @@ extern int main(int argc, char** argv)
 
         setup();
 
-        while (-1 != simulationStep())
+        while (true == gSimTime->step())
         {
             keyboard.getPressedButtons();
             loop();
@@ -189,7 +172,7 @@ extern int main(int argc, char** argv)
 
 extern unsigned long millis()
 {
-    return gElapsedTimeSinceReset;
+    return gSimTime->getElapsedTimeSinceReset();
 }
 
 extern void delay(unsigned long ms)
@@ -198,7 +181,7 @@ extern void delay(unsigned long ms)
 
     while ((millis() - timestamp) < ms)
     {
-        if (0 > simulationStep())
+        if (false == gSimTime->step())
         {
             break;
         }
@@ -210,26 +193,3 @@ extern void delay(unsigned long ms)
 /******************************************************************************
  * Local Functions
  *****************************************************************************/
-
-#ifndef UNIT_TEST
-
-/**
- * Performs a step in the simulation that simulates the specified time.
- *
- * @return -1 if the simulation step failed, otherwise a non-negative integer.
- */
-static int simulationStep()
-{
-    int ret = -1;
-
-    if (nullptr != gRobot)
-    {
-        ret = gRobot->step(gTimeStep);
-
-        gElapsedTimeSinceReset += gTimeStep;
-    }
-
-    return ret;
-}
-
-#endif

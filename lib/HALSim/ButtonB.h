@@ -27,7 +27,7 @@
 /**
  * @brief  Button B realization
  * @author Andreas Merkle <web@blue-andi.de>
- * 
+ *
  * @addtogroup HALSim
  *
  * @{
@@ -45,7 +45,7 @@
  *****************************************************************************/
 #include "IButton.h"
 
-#include <KeyboardPrivate.h>
+#include <Keyboard.h>
 
 /******************************************************************************
  * Macros
@@ -64,9 +64,7 @@ public:
      *
      * @param[in] keyboard  The robot keyboard.
      */
-    ButtonB(KeyboardPrivate &keyboard) : 
-        IButton(), 
-        m_keyboard(keyboard)
+    ButtonB(Keyboard& keyboard) : IButton(), m_keyboard(keyboard)
     {
     }
 
@@ -90,8 +88,7 @@ public:
     void waitForRelease() final;
 
 private:
-
-    KeyboardPrivate &m_keyboard; /**< Robot keyboard */
+    Keyboard& m_keyboard; /**< Robot keyboard */
 
     /* Default constructor not allowed. */
     ButtonB();

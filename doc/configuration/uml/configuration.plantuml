@@ -1,0 +1,44 @@
+@startuml
+
+title Configuration
+
+component "env:LineFollowerTarget" <<pio>> as envLineFollower
+component "env:LineFollowerSim" <<pio>> as envLineFollowerSim
+
+component "env:RemoteControlTarget" <<pio>> as envRemoteControl
+component "env:RemoteControlSim" <<pio>> as envRemoteControlSim
+
+component "app:LineFollower" <<pio>> as appLineFollower
+component "app:RemoteControl" <<pio>> as appRemoteControl
+
+component "LineFollower" <<lib>> as lineFollower
+component "RemoteControl" <<lib>> as remoteControl
+component "Service" <<lib>> as service
+
+component "target:Zumo32U4" <<pio>> as targetZumo
+component "target:Sim" <<pio>> as targetSim
+
+component "HALTarget" <<lib>> as halTarget
+component "HALSim" <<lib>> as halSim
+
+envLineFollower ..> appLineFollower
+envLineFollower ..> targetZumo
+
+envLineFollowerSim ..> appLineFollower
+envLineFollowerSim ..> targetSim
+
+envRemoteControl ..> appRemoteControl
+envRemoteControl ..> targetZumo
+
+envRemoteControlSim ..> appRemoteControl
+envRemoteControlSim ..> targetSim
+
+appLineFollower ..> lineFollower
+appLineFollower ..> service
+appRemoteControl ..> remoteControl
+appRemoteControl ..> service
+
+targetZumo ..> halTarget
+targetSim ..> halSim
+
+@enduml

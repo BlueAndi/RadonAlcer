@@ -56,6 +56,14 @@ package "HAL" as hal {
             + {abstract} setSpeeds(leftSpeed : int16_t, rightSpeed : int16_t) : void
             + {abstract} getMaxSpeed() const : int16_t
         }
+
+        interface "IProximitySensors" as iProximitySensors {
+            + {abstract} initFrontSensor() : void
+            + {abstract} getNumSensors() const : uint8_t
+            + {abstract} read() : void
+            + {abstract} countsFrontWithLeftLeds() : uint8_t
+            + {abstract} countsFrontWithRightLeds() : uint8_t
+        }
     }
 
     class Board << namespace >> {
@@ -102,6 +110,7 @@ package "HAL" as hal {
         class LedRed
         class LedYellow
         class LedGreen
+        class ProximitySensors
     }
 
     iLineSensors <|... LineSensors: <<realize>>
@@ -115,6 +124,7 @@ package "HAL" as hal {
     iLed <|... LedRed: <<realize>>
     iLed <|... LedYellow: <<realize>>
     iLed <|... LedGreen: <<realize>>
+    iProximitySensors <|... ProximitySensors: <<realize>>
 }
 
 package "Zumo32U4 library"  as zumo32u4Lib {
@@ -127,6 +137,7 @@ package "Zumo32U4 library"  as zumo32u4Lib {
     class Zumo32U4LCD
     class Zumo32U4Encoders
     class Zumo32U4 <<Functions>>
+    class Zumo32U4ProximitySensors
 }
 
 note bottom of zumo32u4Lib
@@ -148,6 +159,7 @@ Encoders *--> Zumo32U4Encoders
 LedRed ..> Zumo32U4: <<use>>
 LedYellow ..> Zumo32U4: <<use>>
 LedGreen ..> Zumo32U4: <<use>>
+ProximitySensors ..> Zumo32U4ProximitySensors: <<use>>
 
 note bottom of hal
     The hardware abstraction layer contains

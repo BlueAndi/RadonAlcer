@@ -1,0 +1,19 @@
+{
+    "name": "RemoteControl",
+    "version": "0.1.0",
+    "description": "RemoteControl application",
+    "authors": [{
+        "name": "Andreas Merkle",
+        "email": "web@blue-andi.de",
+        "url": "https://github.com/BlueAndi",
+        "maintainer": true
+    }],
+    "license": "MIT",
+    "dependencies": [{
+        "name": "Service"
+    }, {
+        "name": "HALInterfaces"
+    }],
+    "frameworks": "*",
+    "platforms": "*"
+}

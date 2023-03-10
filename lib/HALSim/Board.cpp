@@ -81,11 +81,11 @@ const char* Board::EMITTER_3_NAME = "emitter_rm";
 /* Name of the infrared emitter 4 in the robot simulation. */
 const char* Board::EMITTER_4_NAME = "emitter_r";
 
-/** Name of the encoder of the left motor in the robot simulation. */
-const char* Board::ENCODER_LEFT_NAME = "encoder_left";
+/** Name of the position sensor of the left motor in the robot simulation. */
+const char* Board::POS_SENSOR_LEFT_NAME = "position_sensor_left";
 
-/** Name of the encoder of the right motor in the robot simulation. */
-const char* Board::ENCODER_RIGHT_NAME = "encoder_right";
+/** Name of the position sensor of the right motor in the robot simulation. */
+const char* Board::POS_SENSOR_RIGHT_NAME = "position_sensor_right";
 
 /* Name of the light sensor 0 in the robot simulation. */
 const char* Board::LIGHT_SENSOR_0_NAME = "lightsensor_l";
