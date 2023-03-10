@@ -51,6 +51,9 @@
  * Prototypes
  *****************************************************************************/
 
+/**
+ * Static alias for callback of the control channel.
+ */
 static void controlChannelCallback(const uint8_t* rcvData);
 
 /******************************************************************************
@@ -187,6 +190,7 @@ void YAPServer::callbackControlChannel(const uint8_t* rcvData)
 /******************************************************************************
  * Private Methods
  *****************************************************************************/
+
 YAPServer::YAPServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U), m_lastSyncResponse(0U)
 {
     createChannel("CONTROL", CONTROL_CHANNEL_PAYLOAD_LENGTH, controlChannelCallback);

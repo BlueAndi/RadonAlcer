@@ -51,6 +51,9 @@
  * Macros
  *****************************************************************************/
 
+/**
+ * Maximum allowed of configurable channels. 
+ */
 #ifndef YAP_MAXCHANNELS
     #define YAP_MAXCHANNELS (10)
 #endif
