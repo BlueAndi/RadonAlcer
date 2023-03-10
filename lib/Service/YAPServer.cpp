@@ -51,6 +51,8 @@
  * Prototypes
  *****************************************************************************/
 
+static void controlChannelCallback(const uint8_t* rcvData);
+
 /******************************************************************************
  * Local Variables
  *****************************************************************************/
@@ -187,6 +189,7 @@ void YAPServer::callbackControlChannel(const uint8_t* rcvData)
  *****************************************************************************/
 YAPServer::YAPServer() : m_dataChannels{nullptr}, m_isSynced(false), m_lastSyncCommand(0U), m_lastSyncResponse(0U)
 {
+    createChannel("CONTROL", CONTROL_CHANNEL_PAYLOAD_LENGTH, controlChannelCallback);
 }
 
 YAPServer::~YAPServer()
@@ -295,3 +298,8 @@ bool YAPServer::isFrameValid(const Frame& frame, uint8_t payloadLength)
 /******************************************************************************
  * Local Functions
  *****************************************************************************/
+
+void controlChannelCallback(const uint8_t* rcvData)
+{
+    YAPServer::getInstance().callbackControlChannel(rcvData);
+}
