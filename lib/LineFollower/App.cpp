@@ -67,7 +67,7 @@ static void controlCallback(const uint8_t* rcvData);
  * Local Variables
  *****************************************************************************/
 
-static YAPServer<10> gYAPServer(controlCallback);
+static YAPServer gYAPServer(controlCallback);
 
 /******************************************************************************
  * Public Methods

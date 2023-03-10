@@ -51,15 +51,17 @@
  * Macros
  *****************************************************************************/
 
+#ifndef YAP_MAXCHANNELS
+    #define YAP_MAXCHANNELS (10)
+#endif
+
 /******************************************************************************
  * Types and Classes
  *****************************************************************************/
 
 /**
  *  Class for the YAP Server.
- *  @tparam maxChannels Number of data channels that can be configured.
  */
-template<uint8_t maxChannels>
 class YAPServer
 {
 public:
@@ -121,7 +123,7 @@ public:
     {
         uint8_t itr;
 
-        for (itr = 0; itr < maxChannels; itr++)
+        for (itr = 0; itr < YAP_MAXCHANNELS; itr++)
         {
             if (nullptr == m_dataChannels[itr])
             {
@@ -144,7 +146,7 @@ public:
      */
     void printChannels()
     {
-        for (uint8_t i = 0; i < maxChannels; i++)
+        for (uint8_t i = 0; i < YAP_MAXCHANNELS; i++)
         {
             if (nullptr == m_dataChannels[i])
             {
@@ -200,7 +202,7 @@ public:
 
             uint8_t itr;
 
-            for (itr = 0; itr < maxChannels; itr++)
+            for (itr = 0; itr < YAP_MAXCHANNELS; itr++)
             {
                 if (0U == strncmp(channelName, m_dataChannels[itr]->m_name, CHANNEL_NAME_MAX_LEN))
                 {
@@ -338,7 +340,7 @@ private:
     /**
      *  Array of Data Channels.
      */
-    Channel* m_dataChannels[maxChannels];
+    Channel* m_dataChannels[YAP_MAXCHANNELS];
 
     /**
      * Current Sync state.
