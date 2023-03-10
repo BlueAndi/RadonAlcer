@@ -93,7 +93,7 @@ public:
      * This function assumes a dark line (high values) surrounded by white
      * (low values).
      * 
-     * @return Estimated position with respect to a line
+     * @return Estimated position with respect to track.
      */
     virtual int16_t readLine() = 0;
 

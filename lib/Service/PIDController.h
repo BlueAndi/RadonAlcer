@@ -27,7 +27,7 @@
 /**
  * @brief  PID regulator
  * @author Andreas Merkle <web@blue-andi.de>
- * 
+ *
  * @addtogroup Service
  *
  * @{
@@ -129,12 +129,12 @@ struct Type<int32_t>
 
 /**
  * A proportional–integral–derivative controller (PID controller).
- * It is especially created for using integers instead of floating datatypes.
+ * It uses fixed point arithmetic for better performance.
  *
  * e(t) = sp(t) - pv(t)
  * co(t) = Kp * e(t) + Ki * Integral(e(t) dt) + Kd * e(t) / dt
  *
- * e(t): Error
+ * e(t):  Error
  * sp(t): Set Point
  * pv(t): Process Value
  * co(t): Controller Output
@@ -169,7 +169,6 @@ public:
         m_integral(0),
         m_lastOutput(0),
         m_sampleTime(SAMPLE_TIME_DEFAULT),
-        m_lastTimestamp(0),
         m_resync(false),
         m_isDerivativeOnMeasurement(false),
         m_lastProcessValue(0)
@@ -209,7 +208,6 @@ public:
         m_integral(0),
         m_lastOutput(0),
         m_sampleTime(SAMPLE_TIME_DEFAULT),
-        m_lastTimestamp(0),
         m_resync(false),
         m_isDerivativeOnMeasurement(false),
         m_lastProcessValue(0)
@@ -251,7 +249,6 @@ public:
         m_integral(ctrl.m_integral),
         m_lastOutput(ctrl.m_lastOutput),
         m_sampleTime(ctrl.m_sampleTime),
-        m_lastTimestamp(ctrl.m_lastTimestamp),
         m_resync(ctrl.m_resync),
         m_isDerivativeOnMeasurement(ctrl.m_isDerivativeOnMeasurement),
         m_lastProcessValue(ctrl.m_lastProcessValue)
@@ -285,7 +282,6 @@ public:
             m_integral                  = ctrl.m_integral;
             m_lastOutput                = ctrl.m_lastOutput;
             m_sampleTime                = ctrl.m_sampleTime;
-            m_lastTimestamp             = ctrl.m_lastTimestamp;
             m_resync                    = ctrl.m_resync;
             m_isDerivativeOnMeasurement = ctrl.m_isDerivativeOnMeasurement;
             m_lastProcessValue          = ctrl.m_lastProcessValue;
@@ -308,9 +304,7 @@ public:
      */
     T calculate(T setpoint, T processValue)
     {
-        uint32_t timestamp = (0 == m_sampleTime) ? 0 : millis();
-        uint32_t deltaTime = timestamp - m_lastTimestamp;
-        T        output    = m_lastOutput;
+        T output;
 
         if (true == m_resync)
         {
@@ -320,8 +314,6 @@ public:
             m_lastProcessValue = processValue;
         }
 
-        /* Calculate only in fixed intervals. */
-        if (m_sampleTime <= deltaTime)
         {
             T error        = setpoint - processValue;
             T proportional = (m_kPNumerator * error) / m_kPDenominator;
@@ -345,9 +337,8 @@ public:
             /* Limit the controller output */
             output = constrain(output, m_min, m_max);
 
-            m_integral += error;
+            m_integral         = integral;
             m_lastError        = error;
-            m_lastTimestamp    = timestamp;
             m_lastOutput       = output;
             m_lastProcessValue = processValue;
         }
@@ -485,14 +476,11 @@ public:
 
     /**
      * Clear last error and integral value.
-     * The next call of calculate() will enforce a calculation.
-     *
      */
     void clear()
     {
         m_lastError = 0;
         m_integral  = 0;
-        enforceCalculationOnce();
     }
 
     /**
@@ -509,8 +497,8 @@ public:
      * Set sample time (dT).
      * Note, internally the integral and derivative factors will be automatically
      * adjusted.
-     *
-     * A 0 sample means, calculaton takes place every calculate() call.
+     * 
+     * Ensure that the calculate() method is called once in this period.
      *
      * @param[in]   sampleTime  Sample time in ms
      */
@@ -537,23 +525,6 @@ public:
             }
 
             m_sampleTime = sampleTime;
-        }
-    }
-
-    /**
-     * Ensure that only the next call of calculate(), will enforce a calculation
-     * independed of the sample time. The next calculation will take place in a
-     * regular interval, starting from now on.
-     */
-    void enforceCalculationOnce()
-    {
-        if (0 == m_sampleTime)
-        {
-            m_lastTimestamp = m_sampleTime;
-        }
-        else
-        {
-            m_lastTimestamp = millis() - m_sampleTime;
         }
     }
 
@@ -606,7 +577,6 @@ private:
     T        m_integral;                  /**< Integral value */
     T        m_lastOutput;                /**< Last output value, which is used till next sample time. */
     uint32_t m_sampleTime;                /**< Sample time period in ms */
-    uint32_t m_lastTimestamp;             /**< Last sample timestamp in ms */
     bool     m_resync;                    /**< A resync avoids a output bump */
     bool     m_isDerivativeOnMeasurement; /**< Enables/Disables derivative on measurement. */
     T        m_lastProcessValue;          /**< Last process value is used for derivative on measurement only. */

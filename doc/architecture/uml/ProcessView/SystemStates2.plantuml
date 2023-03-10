@@ -6,8 +6,11 @@ state StartupState: /entry Initialize HAL.
 state StartupState: /entry Show operator info on LCD.
 state StartupState: /do Wait for pushbutton A is triggered.
 
-state CalibrationState: /entry Show operator info on LCD.
-state CalibrationState: /do Perform calibration.
+state MotorSpeedCalibrationState: /entry Show operator info on LCD.
+state MotorSpeedCalibrationState: /do Perform calibration.
+
+state LineSensorsCalibrationState: /entry Show operator info on LCD.
+state LineSensorsCalibrationState: /do Perform calibration.
 
 state ErrorState: /entry Show error info on LCD.
 state ErrorState: /do Wait for pushbutton A is triggered.
@@ -27,13 +30,14 @@ state DrivingState: /do Perform driving.
 state DrivingState: /exit Stop observation timer.
 
 [*] --> StartupState: Power up
-StartupState --> CalibrationState: [Pushbutton A triggered]
-CalibrationState --> ReadyState: [Calibration finished]
-CalibrationState --> ErrorState: [Calibration failed]
+StartupState --> MotorSpeedCalibrationState: [Pushbutton A triggered]
+MotorSpeedCalibrationState --> LineSensorsCalibrationState: [Calibration finished]
+LineSensorsCalibrationState --> ReadyState: [Calibration finished]
+LineSensorsCalibrationState --> ErrorState: [Calibration failed]
 ReadyState --> ReleaseTrackState: [Pushbutton A triggered]
 ReleaseTrackState --> DrivingState: [Release timer timeout]
 ReleaseTrackState --> ReleaseTrackState: [Pushbutton A triggered]
 DrivingState --> ReadyState: [End line detected] or\n[Track lost] or\n[Observation timer timeout]
-ErrorState --> CalibrationState: [Pushbutton A triggered]
+ErrorState --> MotorSpeedCalibrationState: [Pushbutton A triggered]
 
 @enduml

@@ -28,6 +28,8 @@
 import shutil
 import os
 
+Import("env") # type: ignore
+
 ################################################################################
 # Variables
 ################################################################################
@@ -36,7 +38,7 @@ SHARED_FILES_LIST = [
     '/lib/controller/Controller.dll',
     '/lib/controller/CppController.dll']
 
-PIO_ENV_NAME = "WebotsSim"
+PIO_ENV_NAME = env["PIOENV"] # type: ignore
 
 ################################################################################
 # Classes

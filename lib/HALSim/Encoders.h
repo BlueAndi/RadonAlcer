@@ -44,6 +44,8 @@
  * Includes
  *****************************************************************************/
 #include "IEncoders.h"
+#include "SimTime.h"
+
 #include <webots/PositionSensor.hpp>
 
 /******************************************************************************
@@ -61,17 +63,27 @@ public:
     /**
      * Constructs the encoders adapter.
      * 
+     * @param[in] simTime               Simulation time
      * @param[in] wheelCircumference    Wheel circumference in mm
      * @param[in] posSensorLeft         The left position sensor
      * @param[in] posSensorRight        The right position sensor
      */
-    Encoders(webots::PositionSensor* posSensorLeft, webots::PositionSensor* posSensorRight) : 
+    Encoders(const SimTime& simTime, webots::PositionSensor* posSensorLeft, webots::PositionSensor* posSensorRight) : 
         IEncoders(), 
         m_posSensorLeft(posSensorLeft),
         m_posSensorRight(posSensorRight),
         m_lastResetValueLeft(0.0f),
         m_lastResetValueRight(0.0f)
     {
+        if (nullptr != m_posSensorLeft)
+        {
+            m_posSensorLeft->enable(simTime.getTimeStep());
+        }
+
+        if (nullptr != m_posSensorRight)
+        {
+            m_posSensorRight->enable(simTime.getTimeStep());
+        }
     }
 
     /**
@@ -127,11 +139,21 @@ private:
     /* The position sensor of the right motor in the robot simulation. */
     webots::PositionSensor* m_posSensorRight;
 
-    /* Reset value needed to calculate the steps. */
+    /* Last position value of the left sensor in [m], used as reference. */
     double m_lastResetValueLeft;
 
-    /* Reset value needed to calculate the steps. */
+    /* Last position value of the right sensor in [m], used as reference. */
     double m_lastResetValueRight;
+
+    /**
+     * Calculate the absolute number of encoder steps by position change.
+     * 
+     * @param[in] lastPos   Last position in [m]
+     * @param[in] pos       Current position in [m]
+     * 
+     * @return Absolute number of encoder steps
+     */
+    int16_t calculateSteps(double lastPos, double pos) const;
 };
 
 /******************************************************************************

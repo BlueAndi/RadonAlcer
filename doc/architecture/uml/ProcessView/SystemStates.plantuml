@@ -3,29 +3,37 @@
 title System States
 
 state StartupState
-state CalibrationState
+state MotorSpeedCalibrationState
+state LineSensorsCalibrationState
 state ErrorState
 state DrivingState
 state ReadyState
 state ReleaseTrackState
 
 [*] --> StartupState: Power up
-StartupState --> CalibrationState: [Pushbutton A triggered]
-CalibrationState --> ReadyState: [Calibration finished]
-CalibrationState --> ErrorState: [Calibration failed]
+StartupState --> MotorSpeedCalibrationState: [Pushbutton A triggered]
+MotorSpeedCalibrationState --> LineSensorsCalibrationState: [Calibration finished]
+LineSensorsCalibrationState --> ReadyState: [Calibration finished]
+LineSensorsCalibrationState --> ErrorState: [Calibration failed]
 ReadyState --> ReleaseTrackState: [Pushbutton A triggered]
 ReleaseTrackState --> DrivingState: [After 5s]
 ReleaseTrackState --> ReleaseTrackState: [Pushbutton A triggered]
 DrivingState --> ReadyState: [End line detected] or\n[Track lost] or\n[End line not found after 5 min.]
-ErrorState --> CalibrationState: [Pushbutton A triggered]
+ErrorState --> MotorSpeedCalibrationState: [Pushbutton A triggered]
 
 note right of StartupState
     Initialize the system and wait till
     the operator is ready for calibration.
 end note
 
-note right of CalibrationState
-    Calibrates the system on the playfield.
+note right of MotorSpeedCalibrationState
+    Measures the max. left/right encoder steps / s with
+    100% motor speed. Required for the motor speed PID.
+end note
+
+note right of LineSensorsCalibrationState
+    Calibrates the line sensors on the playfield by
+    measuring the the darkness and brightness values.
 end note
 
 note left of ErrorState

@@ -32,22 +32,11 @@
 /******************************************************************************
  * Includes
  *****************************************************************************/
-#include <Arduino.h>
-#include "StateMachine.h"
-#include "StartupState.h"
-#include <Board.h>
-#include <Mileage.h>
-#include <Logging.h>
-#include <LogSinkPrinter.h>
-#include <YAPServer.hpp>
+#include <App.h>
 
 /******************************************************************************
  * Macros
  *****************************************************************************/
-
-#ifndef CONFIG_LOG_SEVERITY
-#define CONFIG_LOG_SEVERITY     (Logging::LOG_LEVEL_INFO)
-#endif /* CONFIG_LOG_SEVERITY */
 
 /******************************************************************************
  * Types and Classes
@@ -57,20 +46,12 @@
  * Prototypes
  *****************************************************************************/
 
-static void controlCallback(const uint8_t* rcvData);
-
 /******************************************************************************
  * Variables
  *****************************************************************************/
 
-/** The system state machine. */
-static StateMachine gSystemStateMachine;
-
-/** Serial log sink */
-static LogSinkPrinter   gLogSinkSerial("Serial", &Serial);
-
-/** Instance of YAP Server with 10 maximum Channels */
-static YAPServer<10> gYAPServer(controlCallback);
+/** The main application. */
+static App gApplication;
 
 /******************************************************************************
  * External functions
@@ -82,20 +63,7 @@ static YAPServer<10> gYAPServer(controlCallback);
  */
 void setup() // cppcheck-suppress unusedFunction
 {
-    Board::getInstance().init();
-    Serial.begin(115200);
-
-    /* Register serial log sink and select it per default. */
-    if (true == Logging::getInstance().registerSink(&gLogSinkSerial))
-    {
-        Logging::getInstance().selectSink("Serial");
-    }
-    
-    Logging::getInstance().setLogLevel(CONFIG_LOG_SEVERITY);
-
-    LOG_INFO("Logger Initialized");
-
-    gSystemStateMachine.setState(&StartupState::getInstance());
+    gApplication.setup();
 }
 
 /**
@@ -104,16 +72,9 @@ void setup() // cppcheck-suppress unusedFunction
  */
 void loop() // cppcheck-suppress unusedFunction
 {
-    Mileage::getInstance().process();
-    gSystemStateMachine.process();
-    gYAPServer.process();
+    gApplication.loop();
 }
 
 /******************************************************************************
  * Local functions
  *****************************************************************************/
-
-static void controlCallback(const uint8_t* rcvData)
-{
-    gYAPServer.callbackControlChannel(rcvData);
-}

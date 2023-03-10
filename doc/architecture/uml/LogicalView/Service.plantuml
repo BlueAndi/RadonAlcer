@@ -40,6 +40,33 @@ package "Service" as serviceLayer {
         Moving average filter which can be
         configured at compile time.
     end note
+
+    class RelativeEncoder <<service>>
+
+    note top of RelativeEncoder
+        Calculates the relative encoder
+        steps from a reference point.
+    end note
+
+    class Speedometer <<service>>
+
+    note top of Speedometer
+        Determines the linear speed left/right/center
+        in [steps/s].
+    end note
+
+    class DifferentialDrive <<service>>
+
+    note top of DifferentialDrive
+        Steering the robot with linear (steps/s) and
+        angular speed [mrad/s] by controlling the
+        speed with PID controllers.
+    end note
+
+    DifferentialDrive -[hidden]-- MovAvg
+    Speedometer -[hidden]-- Mileage
+    RelativeEncoder -[hidden]-- PIDController
+    SimpleTimer -[hidden]-- Sound
 }
 
 @enduml

@@ -55,6 +55,7 @@
 #include <LedRed.h>
 #include <LedYellow.h>
 #include <LedGreen.h>
+#include <ProximitySensors.h>
 
 /******************************************************************************
  * Macros
@@ -198,6 +199,16 @@ public:
         return m_ledGreen;
     }
 
+    /**
+     * Get proximity sensors driver.
+     * 
+     * @return Proximity sensors driver
+     */
+    IProximitySensors& getProximitySensors() final
+    {
+        return m_proximitySensors;
+    }
+
 protected:
 
 private:
@@ -235,6 +246,9 @@ private:
     /** Red LED driver */
     LedGreen m_ledGreen;
 
+    /** Proximity sensors */
+    ProximitySensors m_proximitySensors;
+
     /**
      * Constructs the concrete board.
      */
@@ -250,7 +264,8 @@ private:
         m_motors(),
         m_ledRed(),
         m_ledYellow(),
-        m_ledGreen()
+        m_ledGreen(),
+        m_proximitySensors()
     {
     }
 

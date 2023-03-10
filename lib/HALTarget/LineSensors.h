@@ -111,6 +111,8 @@ public:
      *
      * This function assumes a dark line (high values) surrounded by white
      * (low values).
+     * 
+     * @return Estimated position with respect to track.
      */
     int16_t readLine() final
     {

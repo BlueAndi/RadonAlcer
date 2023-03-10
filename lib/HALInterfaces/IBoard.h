@@ -51,6 +51,7 @@
 #include <ILineSensors.h>
 #include <IMotors.h>
 #include <ILed.h>
+#include <IProximitySensors.h>
 
 /******************************************************************************
  * Macros
@@ -155,6 +156,13 @@ public:
      * @return Green LED driver.
      */
     virtual ILed& getGreenLed() = 0;
+
+    /**
+     * Get proximity sensors driver.
+     * 
+     * @return Proximity sensors driver
+     */
+    virtual IProximitySensors& getProximitySensors() = 0;
 
 protected:
 

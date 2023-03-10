@@ -1,0 +1,91 @@
+@startuml
+
+title Line Sensors Calibration State
+
+package "Application" as appLayer {
+
+    class LineSensorsCalibrationState <<control>> {
+        + {static} getInstance() : LineSensorsCalibrationState
+        + entry() : void
+        + process(sm : StateMachine&) : void
+        + exit() : void
+    }
+
+    class MotorSpeedCalibrationState <<control>>
+    class ErrorState <<control>>
+
+    LineSensorsCalibrationState ..> MotorSpeedCalibrationState: <<use>>
+    LineSensorsCalibrationState ..> ErrorState: <<use>>
+}
+
+package "Service" as serviceLayer {
+
+    class SimpleTimer <<service>>
+    class RelativeEncoder <<service>>
+    class DifferentialDrve <<service>><<singleton>>
+    class Speedometer <<service>><<singleton>>
+
+    DifferentialDrve ..> Speedometer: <<use>>
+}
+
+package "HAL" as hal {
+
+    package "Interfaces" as halInterfaces {
+        interface IDisplay {
+            + {abstract} clear() : void
+            + {abstract} gotoXY(xCoord : uint8_t, yCoord : uint8_t) : void
+            + {abstract} print(str : const String&) : size_t
+            + {abstract} print(str : const char[]) : size_t
+            + {abstract} print(value : uint8_t) : size_t
+            + {abstract} print(value : uint16_t) : size_t
+            + {abstract} print(value : uint32_t) : size_t
+            + {abstract} print(value : int8_t) : size_t
+            + {abstract} print(value : int16_t) : size_t
+            + {abstract} print(value : int32_t) : size_t
+        }
+
+        interface IMotors {
+            + {abstract} setSpeeds(leftSpeed : int16_t, rightSpeed : int16_t) : void
+            + {abstract} getMaxSpeed() : int16_t
+        }
+
+        interface ILineSensors {
+            + {abstract} init() : void
+            + {abstract} calibrate() : void
+            + {abstract} readLine() : int16_t
+            + {abstract} getSensorValues() : const uint16_t*
+            + {abstract} getNumLineSensors() const : uint8_t
+            + {abstract} getSensorValueMax() const : uint16_t
+        }
+
+        interface IEncoders {
+            + {abstract} getCountsLeft() : int16_t
+            + {abstract} getCountsRight() : int16_t
+            + {abstract} getCountsAndResetLeft() : int16_t
+            + {abstract} getCountsAndResetRight() : int16_t
+            + {abstract} getResolution() const : uint16_t
+        }
+    }
+
+    class Board << namespace >> {
+        + getDisplay() : IDisplay&
+        + getMotors() : IMotors&
+        + getLineSensors() : ILineSensors&
+    }
+}
+
+appLayer -[hidden]-- serviceLayer
+serviceLayer -[hidden]-- hal
+
+LineSensorsCalibrationState ....> IDisplay: <<use>>
+LineSensorsCalibrationState ....> ILineSensors: <<use>>
+LineSensorsCalibrationState ....> Board: <<use>>
+LineSensorsCalibrationState *--> SimpleTimer
+LineSensorsCalibrationState *--> RelativeEncoder
+LineSensorsCalibrationState ...> DifferentialDrve: <<use>>
+
+DifferentialDrve ...> IMotors: <<use>>
+Speedometer ..> IEncoders: <<use>>
+Speedometer ..> IMotors: <<use>>
+
+@enduml

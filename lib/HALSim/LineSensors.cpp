@@ -58,23 +58,10 @@
  * Public Methods
  *****************************************************************************/
 
-const uint16_t* LineSensors::getSensorValues()
-{
-    for(uint8_t sensorIndex = 0; sensorIndex < MAX_SENSORS; ++sensorIndex)
-    {
-        if (nullptr != m_lightSensors[sensorIndex])
-        {
-            m_sensorValuesU16[sensorIndex] = static_cast<uint16_t>(m_lightSensors[sensorIndex]->getValue());
-        }
-    }
-
-    return m_sensorValuesU16;
-}
-
 void LineSensors::calibrate()
 {
-    getSensorValues();
-    
+    (void)getSensorValues();
+
     for (uint8_t sensorIndex = 0; sensorIndex < MAX_SENSORS; ++sensorIndex)
     {
         if (m_sensorValuesU16[sensorIndex] < m_sensorMinValues[sensorIndex])
@@ -87,35 +74,56 @@ void LineSensors::calibrate()
             m_sensorMaxValues[sensorIndex] = m_sensorValuesU16[sensorIndex];
         }
     }
-    
+
     m_sensorCalibStarted = true;
 }
 
 int16_t LineSensors::readLine()
 {
-    const uint32_t  WEIGHT0      = 0;
-    const uint32_t  WEIGHT1      = 1000;
-    const uint32_t  WEIGHT2      = 2000;
-    const uint32_t  WEIGHT3      = 3000;
-    const uint32_t  WEIGHT4      = 4000;
-    uint32_t        numerator    = (WEIGHT0 * m_sensorValuesU16[0] +
-                                   WEIGHT1 * m_sensorValuesU16[1] +
-                                   WEIGHT2 * m_sensorValuesU16[2] +
-                                   WEIGHT3 * m_sensorValuesU16[3] +
-                                   WEIGHT4 * m_sensorValuesU16[4]);
-    uint32_t        denominator  = (m_sensorValuesU16[0] +
-                                   m_sensorValuesU16[1] +
-                                   m_sensorValuesU16[2] +
-                                   m_sensorValuesU16[3] +
-                                   m_sensorValuesU16[4]);
+    const uint32_t WEIGHT0      = 0;
+    const uint32_t WEIGHT1      = 1000;
+    const uint32_t WEIGHT2      = 2000;
+    const uint32_t WEIGHT3      = 3000;
+    const uint32_t WEIGHT4      = 4000;
+    uint32_t       estimatedPos = 0;
 
-    /* Check to avoid division by zero. */
-    if (0 == denominator)
+    (void)getSensorValues();
+
     {
-        denominator = 1;
+        uint32_t numerator =    (WEIGHT0 * m_sensorValuesU16[0] +
+                                 WEIGHT1 * m_sensorValuesU16[1] +
+                                 WEIGHT2 * m_sensorValuesU16[2] +
+                                 WEIGHT3 * m_sensorValuesU16[3] +
+                                 WEIGHT4 * m_sensorValuesU16[4]);
+        uint32_t denominator = (m_sensorValuesU16[0] +
+                                m_sensorValuesU16[1] +
+                                m_sensorValuesU16[2] +
+                                m_sensorValuesU16[3] +
+                                m_sensorValuesU16[4]);
+
+        /* Check to avoid division by zero. */
+        if (0 == denominator)
+        {
+            denominator = 1;
+        }
+
+        estimatedPos = numerator / denominator;
     }
 
-    return static_cast<int16_t>(numerator / denominator);
+    return static_cast<int16_t>(estimatedPos);
+}
+
+const uint16_t* LineSensors::getSensorValues()
+{
+    for (uint8_t sensorIndex = 0; sensorIndex < MAX_SENSORS; ++sensorIndex)
+    {
+        if (nullptr != m_lightSensors[sensorIndex])
+        {
+            m_sensorValuesU16[sensorIndex] = static_cast<uint16_t>(m_lightSensors[sensorIndex]->getValue());
+        }
+    }
+
+    return m_sensorValuesU16;
 }
 
 bool LineSensors::isCalibrationSuccessful()
@@ -123,16 +131,16 @@ bool LineSensors::isCalibrationSuccessful()
     bool isSuccessful = false;
 
     m_calibErrorInfo = CALIB_ERROR_NOT_CALIBRATED;
-    
+
     if (true == m_sensorCalibStarted)
     {
         uint8_t index = 0;
 
         isSuccessful = true;
-        while((MAX_SENSORS > index) && (true == isSuccessful))
+        while ((MAX_SENSORS > index) && (true == isSuccessful))
         {
             uint16_t distance = 0;
-            
+
             /* Check whether the max. value is really greater than the min. value.
              * It can happen that someone try to calibrate over a blank surface.
              */
@@ -147,7 +155,7 @@ bool LineSensors::isCalibrationSuccessful()
             if ((SENSOR_MAX_VALUE / 4) > distance)
             {
                 m_calibErrorInfo = index;
-                isSuccessful = false;
+                isSuccessful     = false;
             }
 
             ++index;
