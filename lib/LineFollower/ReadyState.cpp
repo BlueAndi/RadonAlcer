@@ -97,25 +97,25 @@ void ReadyState::process(StateMachine& sm)
         uint8_t         index        = 0;
         int16_t         position     = lineSensors.readLine();
         const uint16_t* sensorValues = lineSensors.getSensorValues();
-
-        char msg[Logging::MESSAGE_BUFFER_SIZE] = "";
-        char tmp[10U] = {0};
+        char            msg[80U];
+        char            tmp[10U];
+        msg[0] = '\0';
+        tmp[0] = '\0';
 
         /* Print line sensor value on console for debug purposes. */
         for (index = 0; index < lineSensors.getNumLineSensors(); ++index)
         {
-            
             if (0 < index)
             {
-                strcat(msg, " / ");
+                strncat(msg, " / ", (sizeof(msg) - strlen(msg) - 1));
             }
-            
-            snprintf(tmp, 10U, "%u", sensorValues[index]);
-            strcat(msg, tmp);
+
+            snprintf(tmp, sizeof(tmp), "%u", sensorValues[index]);
+            strncat(msg, tmp, (sizeof(msg) - strlen(msg) - 1));
         }
-        strcat(msg, " -> ");
-        snprintf(tmp, 10U, "%u", position);
-        strcat(msg, tmp);
+        strncat(msg, " -> ", (sizeof(msg) - strlen(msg) - 1));
+        snprintf(tmp, sizeof(tmp), "%u", position);
+        strncat(msg, tmp, (sizeof(msg) - strlen(msg) - 1));
 
         LOG_DEBUG("ReadyState", msg);
 

@@ -141,9 +141,6 @@ namespace Logging
         LOG_LEVEL_DEBUG,     /**< A diagnostic message helpful for the developer. */
     };
 
-    /** The maximum size of the logMessage buffer to get the variable arguments. */
-    const uint16_t MESSAGE_BUFFER_SIZE   = 80U;
-
     /**
      * Print log message.
      *
