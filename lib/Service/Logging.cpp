@@ -52,12 +52,6 @@
  * Prototypes
  *****************************************************************************/
 
-/**
- * Print the head or metadata of the log message.
- * @param[in] filename Name of the file where the message originates.
- * @param[in] lineNumber Number of the line where the message originates.
- * @param[in] level Serverity level of the message.
- */
 static void printHead(const char* filename, int lineNumber, Logging::LogLevel level);
 
 /******************************************************************************
@@ -99,6 +93,12 @@ void Logging::print(const char* filename, int lineNumber, Logging::LogLevel leve
  * Local Functions
  *****************************************************************************/
 
+/**
+ * Print the head or metadata of the log message.
+ * @param[in] filename Name of the file where the message originates.
+ * @param[in] lineNumber Number of the line where the message originates.
+ * @param[in] level Serverity level of the message.
+ */
 static void printHead(const char* filename, int lineNumber, Logging::LogLevel level)
 {
     uint8_t     HEAD_BUFFER_SIZE         = 40U;
